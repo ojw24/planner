@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: planner
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${PL_DB_USER}
+    password: ${PL_DB_PWD}
+    url: jdbc:postgresql://${PL_DB_URL}/${PL_DB_NAME}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+        use_sql_comments: true
+    open-in-view: false
+
+server:
+  servlet:
+    context-path: /planner/api
+  port: ${PL_APP_PORT}
