@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-crypto:5.7.7'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	runtimeOnly 'org.postgresql:postgresql' //DB
 
@@ -43,6 +44,15 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	//jwt 관련
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	//jwt secret key load를 위한 pem reader
+	implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
+
 }
 
 tasks.named('test') {
