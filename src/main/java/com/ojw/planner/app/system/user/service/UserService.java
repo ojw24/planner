@@ -6,6 +6,8 @@ import com.ojw.planner.app.system.user.domain.dto.UserDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
 import com.ojw.planner.app.system.user.repository.UserRepository;
+import com.ojw.planner.core.util.SMTPUtil;
+import com.ojw.planner.core.util.dto.smtp.SMTPRequest;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
+
+    private final SMTPUtil smtpUtil;
 
     /**
      * 사용자 등록
@@ -83,7 +87,19 @@ public class UserService {
 
     public User getUser(String userId) {
         return userRepository.findByUserIdAndIsDeletedIsFalse(userId)
-                .orElseThrow(() -> new ResponseException("존재 하지 않는 유저 정보 입니다 : " + userId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseException("not exist user : " + userId, HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * 아이디 찾기
+     *
+     * @param email - 사용자 이메일
+     * @return 사용자 아이디
+     */
+    public String findUserId(String email){
+        return userRepository.findByEmailAndIsDeletedIsFalse(email)
+                .orElseThrow(() -> new ResponseException("not exist user : " + email, HttpStatus.NOT_FOUND))
+                .getUserId();
     }
 
     /**
@@ -102,6 +118,32 @@ public class UserService {
         getUser(userId).update(updateDto);
         return userId;
 
+    }
+
+    /**
+     * 사용자 정지
+     *
+     * @param userId - 사용자 아이디
+     */
+    @Transactional
+    public void banUser(String userId) {
+        getUser(userId).ban();
+    }
+
+    /**
+     * 비밀번호 재설정
+     *
+     * @param userId - 사용자 아이디
+     */
+    @Transactional
+    public void userPasswordReset(String userId) {
+        smtpUtil.send(
+                SMTPRequest.builder()
+                    .to(getUser(userId).getEmail())
+                    .subject("[Planner] 비밀번호 재설정")
+                    .build()
+                    .passwordReset(userId)
+        );
     }
 
     /**

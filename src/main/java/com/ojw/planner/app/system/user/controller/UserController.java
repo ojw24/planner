@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -55,6 +56,14 @@ public class UserController {
         return new ResponseEntity<>(new APIResponse<>(userService.findUser(userId)), HttpStatus.OK);
     }
 
+    @Operation(summary = "아이디 찾기", description = "아이디 찾기", tags = "User")
+    @GetMapping(path = "/id")
+    public ResponseEntity<?> findUserId(
+            @Parameter(name = "email", required = true) @Email @NotBlank String email
+    ) {
+        return new ResponseEntity<>(new APIResponse<>("find user id successful", userService.findUserId(email)), HttpStatus.OK);
+    }
+
     @Operation(summary = "사용자 정보 수정", description = "사용자 정보 수정", tags = "User")
     @PutMapping(path = "/{userId}")
     public ResponseEntity<?> updateUser(
@@ -63,6 +72,24 @@ public class UserController {
     ) {
         userService.updateUser(userId, updateDto);
         return new ResponseEntity<>(new APIResponse<>("User update successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "사용자 정지", description = "사용자 아이디로 정지", tags = "User")
+    @PutMapping(path = "/{userId}/ban")
+    public ResponseEntity<?> banUser(
+            @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
+    ) {
+        userService.banUser(userId);
+        return new ResponseEntity<>(new APIResponse<>("User ban successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정", tags = "User")
+    @PutMapping(path = "/{userId}/password")
+    public ResponseEntity<?> userPasswordReset(
+            @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
+    ) {
+        userService.userPasswordReset(userId);
+        return new ResponseEntity<>(new APIResponse<>("User password reset mail is sent"), HttpStatus.OK);
     }
 
     @Operation(summary = "사용자 삭제", description = "사용자 아이디로 삭제", tags = "User")

@@ -2,7 +2,6 @@ package com.ojw.planner.app.system.user.repository.querydsl;
 
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDTO;
-import com.ojw.planner.core.util.RepositoryUtil;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +33,7 @@ public class UserRepositoryCustomImpl
                         containsSearchValue(findDTO.getSearchType(), findDTO.getSearchValue())
                         , user.isDeleted.isFalse()
                 )
-                .orderBy(RepositoryUtil.getOrderSpecifier(pageable.getSort(), new User()))
+                .orderBy(user.regDtm.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

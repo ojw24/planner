@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 
 public class RepositoryUtil {
 
+    @Deprecated //querydsl 취약점 개선 시 해제 or 필요할 시, 검증 로직 추가 후 해제
     public static <T> OrderSpecifier[] getOrderSpecifier(Sort sort, T entity) {
 
         return sort.stream().map

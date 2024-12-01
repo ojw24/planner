@@ -58,4 +58,8 @@ public class User extends BaseEntity {
         this.isDeleted = true;
     }
 
+    public void ban() {
+        this.isBanned = true;
+    }
+
 }
