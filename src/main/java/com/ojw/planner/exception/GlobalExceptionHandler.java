@@ -1,9 +1,10 @@
 package com.ojw.planner.exception;
 
-import com.ojw.planner.core.response.APIResponse;
+import com.ojw.planner.core.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -19,17 +20,6 @@ import java.io.PrintStream;
 @RestControllerAdvice //@RestController 예외 AOP 처리
 public class GlobalExceptionHandler {
 
-    //클라이언트 에러 등 400번대 에러
-    @ExceptionHandler(ResponseException.class)
-    public ResponseEntity<?> handleResponseException(ResponseException e){
-
-        loggingError(e);
-
-        HttpStatus status = ObjectUtils.isEmpty(e.getStatus()) ? HttpStatus.INTERNAL_SERVER_ERROR : e.getStatus();
-        return new ResponseEntity<>(new APIResponse<>(getResult(status), e.getMessage()), e.getStatus());
-
-    }
-
     private void loggingError(Exception e) {
 
         try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -39,6 +29,17 @@ public class GlobalExceptionHandler {
         } catch (IOException ioe) {
             log.error("error occurred while close IO");
         }
+
+    }
+
+    //클라이언트 에러 등 400번대 에러
+    @ExceptionHandler(ResponseException.class)
+    public ResponseEntity<?> handleResponseException(ResponseException e){
+
+        loggingError(e);
+
+        HttpStatus status = ObjectUtils.isEmpty(e.getStatus()) ? HttpStatus.INTERNAL_SERVER_ERROR : e.getStatus();
+        return new ResponseEntity<>(new ApiResponse<>(getResult(status), e.getMessage()), e.getStatus());
 
     }
 
@@ -62,18 +63,22 @@ public class GlobalExceptionHandler {
             index++;
         }
 
-        return new ResponseEntity<>(new APIResponse<>(false, builder.toString()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiResponse<>(false, builder.toString()), HttpStatus.BAD_REQUEST);
 
+    }
+
+    //인증 에러
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<?> handleAuthException(AuthorizationDeniedException e){
+        loggingError(e);
+        return new ResponseEntity<>(new ApiResponse<>(false, e.getMessage()), HttpStatus.FORBIDDEN);
     }
 
     //그 외 시스템 에러 등
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e){
-
         loggingError(e);
-
-        return new ResponseEntity<>(new APIResponse<>(false, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-
+        return new ResponseEntity<>(new ApiResponse<>(false, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.ojw.planner.config;
 
-import com.ojw.planner.core.enumeration.inner.JWTType;
+import com.ojw.planner.core.enumeration.inner.JwtType;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -35,10 +35,10 @@ public class InitConfig {
     }
 
     public void initJWTType() {
-        JWTType.ACCESS.setKey(new SecretKeySpec(accessKey.getBytes(), "HmacSHA256"));
-        JWTType.ACCESS.setExpire(accessExpire);
-        JWTType.REFRESH.setKey(loadPrivateKey());
-        JWTType.REFRESH.setExpire(refreshExpire);
+        JwtType.ACCESS.setKey(new SecretKeySpec(accessKey.getBytes(), "HmacSHA256"));
+        JwtType.ACCESS.setExpire(accessExpire);
+        JwtType.REFRESH.setKey(loadPrivateKey());
+        JwtType.REFRESH.setExpire(refreshExpire);
     }
 
     public PrivateKey loadPrivateKey() {

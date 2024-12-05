@@ -2,7 +2,7 @@ package com.ojw.planner.app.system.auth.controller;
 
 import com.ojw.planner.app.system.auth.domain.login.dto.LoginRequest;
 import com.ojw.planner.app.system.auth.service.AuthService;
-import com.ojw.planner.core.response.APIResponse;
+import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,10 +24,10 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "로그인", tags = "Login")
+    @Operation(summary = "로그인", tags = "Auth")
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
-        return new ResponseEntity<>(new APIResponse<>(authService.login(request)), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(authService.login(request)), HttpStatus.OK);
     }
 
 }

@@ -1,11 +1,9 @@
 package com.ojw.planner.app.system.user.domain;
 
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
+import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.core.domain.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,14 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @DynamicUpdate
@@ -24,7 +29,7 @@ import org.springframework.util.StringUtils;
 @Getter
 @Table(name = "users")
 @Entity
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Comment("사용자 아이디")
     @Id
@@ -48,6 +53,9 @@ public class User extends BaseEntity {
     @ColumnDefault("false")
     protected Boolean isBanned;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<UserRole> roles = new ArrayList<>();
+
     public void update(UserUpdateDTO updateDTO) {
         if(StringUtils.hasText(updateDTO.getPassword())) this.password = updateDTO.getPassword();
         if(StringUtils.hasText(updateDTO.getName())) this.name = updateDTO.getName();
@@ -62,4 +70,13 @@ public class User extends BaseEntity {
         this.isBanned = true;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream().map(UserRole::getRole).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return this.name;
+    }
 }

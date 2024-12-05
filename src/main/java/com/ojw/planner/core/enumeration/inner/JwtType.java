@@ -7,7 +7,7 @@ import java.security.Key;
 
 @Getter
 @AllArgsConstructor
-public enum JWTType {
+public enum JwtType {
 
     ACCESS(null, null),
     REFRESH(null, null);
