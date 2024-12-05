@@ -1,7 +1,8 @@
 package com.ojw.planner.core.util;
 
 import com.ojw.planner.app.system.user.domain.User;
-import com.ojw.planner.core.enumeration.inner.JWTType;
+import com.ojw.planner.core.enumeration.inner.JwtClaim;
+import com.ojw.planner.core.enumeration.inner.JwtType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -13,30 +14,29 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.io.FileReader;
 import java.security.KeyFactory;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Date;
 
 @Slf4j
 @Component
-public class JWTUtil {
+public class JwtUtil {
 
     @Value("${jwt.refresh-public-key}")
     private String refreshPublicKey;
 
-    public String createToken(User user, JWTType type) {
+    public String createToken(User user, JwtType type) {
         return Jwts.builder()
-                .claim("userId", user.getUserId())
-                .claim("userNm", user.getName())
+                .claim(JwtClaim.ID.getType(), user.getUserId())
+                .claim(JwtClaim.NAME.getType(), user.getName())
                 .expiration(new Date(System.currentTimeMillis() + type.getExpire() * 1000))
                 .signWith(type.getKey())
                 .compact();
     }
 
     //토큰 파싱
-    public Claims getSubject(String jwt, JWTType type) {
-        return type.equals(JWTType.ACCESS)
+    public Claims getSubject(String jwt, JwtType type) {
+        return type.equals(JwtType.ACCESS)
                 ? Jwts.parser()
                     .verifyWith((SecretKey) type.getKey())
                     .build()
@@ -69,22 +69,22 @@ public class JWTUtil {
     }
 
     //토큰 검증
-    public boolean validateToken(String jwt, JWTType type) {
+    public boolean validateToken(String jwt, JwtType type) {
 
         boolean result = false;
 
         try {
 
             Claims claims = null;
-            if(type.equals(JWTType.ACCESS)) {
+            if(type.equals(JwtType.ACCESS)) {
                 claims = Jwts.parser()
-                        .decryptWith((SecretKey) type.getKey())
+                        .verifyWith((SecretKey) type.getKey())
                         .build()
                         .parseSignedClaims(jwt)
                         .getPayload();
             } else {
                 claims = Jwts.parser()
-                        .decryptWith((PrivateKey) type.getKey())
+                        .verifyWith(loadPublicKey())
                         .build()
                         .parseSignedClaims(jwt)
                         .getPayload();

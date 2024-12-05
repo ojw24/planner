@@ -5,7 +5,11 @@ import com.ojw.planner.app.system.user.domain.dto.UserCreateDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
+import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.app.system.user.repository.UserRepository;
+import com.ojw.planner.app.system.user.repository.role.RoleRepository;
+import com.ojw.planner.app.system.user.repository.role.UserRoleRepository;
+import com.ojw.planner.core.enumeration.system.user.Authority;
 import com.ojw.planner.core.util.SMTPUtil;
 import com.ojw.planner.core.util.dto.smtp.SMTPRequest;
 import com.ojw.planner.exception.ResponseException;
@@ -29,9 +33,13 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final SMTPUtil smtpUtil;
+
     private final UserRepository userRepository;
 
-    private final SMTPUtil smtpUtil;
+    private final UserRoleRepository userRoleRepository;
+
+    private final RoleRepository roleRepository;
 
     /**
      * 사용자 등록
@@ -44,15 +52,28 @@ public class UserService {
 
         validateUserId(createDTO.getUserId());
 
-        return userRepository
-                .save(createDTO.toEntity(passwordEncoder.encode(createDTO.getPassword())))
-                .getUserId();
+        User createUser = userRepository.save(createDTO.toEntity(passwordEncoder.encode(createDTO.getPassword())));
+        createLinked(createUser);
+
+        return createUser.getUserId();
 
     }
 
     public void validateUserId(String userId) {
         if(!ObjectUtils.isEmpty(userRepository.findByUserIdAndIsDeletedIsFalse(userId)))
             throw new ResponseException("already exist user ID : " + userId, HttpStatus.CONFLICT);
+    }
+
+    private void createLinked(User user) {
+        userRoleRepository.save(
+                UserRole.builder()
+                        .user(user)
+                        .role(
+                                roleRepository.findByAuthority(Authority.USER)
+                                        .orElseThrow(() -> new RuntimeException("Internal Server Error"))
+                        )
+                        .build()
+        );
     }
 
     /**

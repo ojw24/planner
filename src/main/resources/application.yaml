@@ -39,5 +39,6 @@ jwt:
   access-key: ${PL_JWT_ACCESS_KEY}
   refresh-private-key: ${PL_JWT_REFRESH_PRIVATE_KEY}
   refresh-public-key: ${PL_JWT_REFRESH_PUBLIC_KEY}
+  system-key: ${PL_SYS_APP_KEY}
   access-expire: ${PL_JWT_ACCESS_EXPIRE}
   refresh-expire: ${PL_JWT_REFRESH_EXPIRE}

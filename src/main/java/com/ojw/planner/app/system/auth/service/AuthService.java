@@ -6,8 +6,8 @@ import com.ojw.planner.app.system.auth.domain.token.Token;
 import com.ojw.planner.app.system.auth.service.token.TokenService;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.service.UserService;
-import com.ojw.planner.core.enumeration.inner.JWTType;
-import com.ojw.planner.core.util.JWTUtil;
+import com.ojw.planner.core.enumeration.inner.JwtType;
+import com.ojw.planner.core.util.JwtUtil;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final JWTUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
@@ -37,15 +37,17 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new ResponseException("Password is wrong", HttpStatus.UNAUTHORIZED);
 
-        String accessToken = jwtUtil.createToken(user, JWTType.ACCESS);
-        String refreshToken = jwtUtil.createToken(user, JWTType.REFRESH);
+        if(user.getIsBanned()) throw new ResponseException("banned user : " + request.getUserId(), HttpStatus.FORBIDDEN);
+
+        String accessToken = jwtUtil.createToken(user, JwtType.ACCESS);
+        String refreshToken = jwtUtil.createToken(user, JwtType.REFRESH);
 
         tokenService.createToken(
                 Token.builder()
                         .user(user)
                         .refreshToken(refreshToken)
                         .expiredDtm(
-                                jwtUtil.getSubject(refreshToken, JWTType.REFRESH)
+                                jwtUtil.getSubject(refreshToken, JwtType.REFRESH)
                                 .getExpiration().toInstant()
                                 .atZone(ZoneId.systemDefault())  // 시스템 기본 시간대
                                 .toLocalDateTime()
