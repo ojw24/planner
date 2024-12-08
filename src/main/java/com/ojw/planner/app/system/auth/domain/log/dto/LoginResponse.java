@@ -1,4 +1,4 @@
-package com.ojw.planner.app.system.auth.domain.login.dto;
+package com.ojw.planner.app.system.auth.domain.log.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

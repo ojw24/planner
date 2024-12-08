@@ -1,6 +1,7 @@
 package com.ojw.planner.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ojw.planner.core.enumeration.inner.JwtPrefix;
 import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.response.ApiResponse;
 import com.ojw.planner.core.util.JwtUtil;
@@ -43,8 +44,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private boolean checkToken(HttpServletResponse response, String jwt) throws IOException {
 
-        if(jwt.contains("Bearer ")) {
-            jwt = jwt.replaceAll("Bearer ", "");
+        if(jwt.contains(JwtPrefix.PREFIX.getType())) {
+            jwt = jwt.replaceAll(JwtPrefix.PREFIX.getType(), "");
         } else {
             setResponse(response, "Invalid token type");
             return false;
@@ -59,6 +60,8 @@ public class JwtFilter extends OncePerRequestFilter {
             setResponse(response, HttpStatus.FORBIDDEN, "Access token is expired. Please refresh.");
             return false;
         }
+
+        //TODO : check cache token logic
 
         return true;
 
