@@ -1,19 +1,19 @@
 package com.ojw.planner.app.system.auth.controller;
 
-import com.ojw.planner.app.system.auth.domain.login.dto.LoginRequest;
+import com.ojw.planner.app.system.auth.domain.dto.RefreshDto;
+import com.ojw.planner.app.system.auth.domain.log.dto.LoginRequest;
 import com.ojw.planner.app.system.auth.service.AuthService;
 import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth", description = "인증 API")
 @Validated
@@ -28,6 +28,22 @@ public class AuthController {
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
         return new ResponseEntity<>(new ApiResponse<>(authService.login(request)), HttpStatus.OK);
+    }
+
+    @Operation(summary = "로그아웃", tags = "Auth")
+    @DeleteMapping(path = "/logout")
+    public ResponseEntity<?> logout(
+            @Parameter(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt
+            , @RequestBody @Valid RefreshDto refreshDto
+    ) {
+        authService.logout(jwt, refreshDto);
+        return new ResponseEntity<>(new ApiResponse<>("success"),HttpStatus.OK);
+    }
+
+    @Operation(summary = "토큰 갱신", tags = "Auth")
+    @PostMapping(path = "/refresh")
+    public ResponseEntity<?> refresh(@RequestBody @Valid RefreshDto refreshDto) {
+        return new ResponseEntity<>(new ApiResponse<>(authService.refresh(refreshDto)), HttpStatus.OK);
     }
 
 }

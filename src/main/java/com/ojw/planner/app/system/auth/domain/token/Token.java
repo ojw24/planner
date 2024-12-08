@@ -52,4 +52,8 @@ public class Token {
         this.loginIp = Utils.getUserIp();
     }
 
+    public void expire() {
+        this.expiredDtm = Utils.now();
+    }
+
 }
