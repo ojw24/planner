@@ -5,10 +5,12 @@ import com.ojw.planner.app.system.user.domain.dto.UserCreateDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDTO;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
+import com.ojw.planner.app.system.user.domain.redis.BannedUser;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.app.system.user.repository.UserRepository;
 import com.ojw.planner.app.system.user.repository.role.RoleRepository;
 import com.ojw.planner.app.system.user.repository.role.UserRoleRepository;
+import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.enumeration.system.user.Authority;
 import com.ojw.planner.core.util.SMTPUtil;
 import com.ojw.planner.core.util.dto.smtp.SMTPRequest;
@@ -31,15 +33,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final PasswordEncoder passwordEncoder;
-
-    private final SMTPUtil smtpUtil;
+    private final BannedUserService bannedUserService;
 
     private final UserRepository userRepository;
 
     private final UserRoleRepository userRoleRepository;
 
     private final RoleRepository roleRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final SMTPUtil smtpUtil;
 
     /**
      * 사용자 등록
@@ -149,6 +153,12 @@ public class UserService {
     @Transactional
     public void banUser(String userId) {
         getUser(userId).ban();
+        bannedUserService.saveUser(
+                BannedUser.builder()
+                        .userId(userId)
+                        .expire(JwtType.ACCESS.getExpire())
+                        .build()
+        );
     }
 
     /**

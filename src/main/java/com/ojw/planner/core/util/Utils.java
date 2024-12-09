@@ -6,6 +6,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public final class Utils {
 
@@ -47,6 +48,12 @@ public final class Utils {
 
         return ip;
 
+    }
+
+    public static Long getExpire(Date date) {
+        Long now = System.currentTimeMillis();
+        Long target = date.getTime();
+        return target > now ? target - now : 0;
     }
 
 }
