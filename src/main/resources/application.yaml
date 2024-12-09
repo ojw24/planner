@@ -29,6 +29,10 @@ spring:
           auth: ${PL_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
           starttls:
             enable: ${PL_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+  data:
+    redis:
+      host: ${PL_REDIS_HOST}
+      port: ${PL_REDIS_PORT}
 
 server:
   servlet:

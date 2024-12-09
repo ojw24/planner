@@ -2,6 +2,7 @@ package com.ojw.planner.core.util;
 
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.core.enumeration.inner.JwtClaim;
+import com.ojw.planner.core.enumeration.inner.JwtPrefix;
 import com.ojw.planner.core.enumeration.inner.JwtType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -29,7 +30,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim(JwtClaim.ID.getType(), user.getUserId())
                 .claim(JwtClaim.NAME.getType(), user.getName())
-                .expiration(new Date(System.currentTimeMillis() + type.getExpire() * 1000))
+                .expiration(new Date(System.currentTimeMillis() + type.getExpire()))
                 .signWith(type.getKey())
                 .compact();
     }
@@ -100,6 +101,11 @@ public class JwtUtil {
 
         return result;
 
+    }
+
+    public static String removeType(String jwt) {
+        if(jwt.contains(JwtPrefix.PREFIX.getType())) jwt = jwt.replaceAll(JwtPrefix.PREFIX.getType(), "");
+        return jwt;
     }
 
 }

@@ -1,6 +1,9 @@
 package com.ojw.planner.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ojw.planner.app.system.auth.service.token.BannedTokenService;
+import com.ojw.planner.app.system.user.service.BannedUserService;
+import com.ojw.planner.core.enumeration.inner.JwtClaim;
 import com.ojw.planner.core.enumeration.inner.JwtPrefix;
 import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.response.ApiResponse;
@@ -22,10 +25,21 @@ import java.io.PrintWriter;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+    private final BannedTokenService bannedTokenService;
+
+    private final BannedUserService bannedUserService;
+
     private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+
+        //사용자 등록 통과
+        if(request.getMethod().equalsIgnoreCase("POST")
+                && request.getRequestURI().contains("/user")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -61,7 +75,16 @@ public class JwtFilter extends OncePerRequestFilter {
             return false;
         }
 
-        //TODO : check cache token logic
+        if(
+            bannedTokenService.existToken(jwt)
+                || bannedUserService.existUser(
+                        jwtUtil.getSubject(jwt, JwtType.ACCESS)
+                                .get(JwtClaim.ID.getType(), JwtClaim.ID.getType().getClass())
+                    )
+        ) {
+            setResponse(response, "User logged out or banned");
+            return false;
+        }
 
         return true;
 

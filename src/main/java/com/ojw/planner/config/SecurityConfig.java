@@ -1,5 +1,7 @@
 package com.ojw.planner.config;
 
+import com.ojw.planner.app.system.auth.service.token.BannedTokenService;
+import com.ojw.planner.app.system.user.service.BannedUserService;
 import com.ojw.planner.core.util.JwtUtil;
 import com.ojw.planner.filter.CommonFilter;
 import com.ojw.planner.filter.JwtFilter;
@@ -21,6 +23,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
+
+    private final BannedTokenService bannedTokenService;
+
+    private final BannedUserService bannedUserService;
 
     private final JwtUtil jwtUtil;
 
@@ -49,7 +55,7 @@ public class SecurityConfig {
             .cors(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((a) -> a.anyRequest().permitAll())
             .addFilterBefore(new CommonFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterAt(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAt(new JwtFilter(bannedTokenService, bannedUserService, jwtUtil), UsernamePasswordAuthenticationFilter.class)
             .build();
     }
 
