@@ -12,14 +12,10 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @SuperBuilder
 @DynamicUpdate
@@ -29,7 +25,7 @@ import java.util.stream.Collectors;
 @Getter
 @Table(name = "users")
 @Entity
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity {
 
     @Comment("사용자 아이디")
     @Id
@@ -53,7 +49,7 @@ public class User extends BaseEntity implements UserDetails {
     @ColumnDefault("false")
     protected Boolean isBanned;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<UserRole> roles = new ArrayList<>();
 
     public void update(UserUpdateDTO updateDTO) {
@@ -70,13 +66,4 @@ public class User extends BaseEntity implements UserDetails {
         this.isBanned = true;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream().map(UserRole::getRole).collect(Collectors.toList());
-    }
-
-    @Override
-    public String getUsername() {
-        return this.name;
-    }
 }

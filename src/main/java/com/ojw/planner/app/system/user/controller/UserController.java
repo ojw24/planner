@@ -39,7 +39,6 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>("User creation successful", userService.createUser(createDTO)), HttpStatus.CREATED);
     }
 
-    //TODO : 권한 처리 필요
     @PreAuthorize("hasRole(T(com.ojw.planner.core.enumeration.system.user.Authority).ADMIN.description)")
     @PageableAsQueryParam
     @Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회", tags = "User")
@@ -77,7 +76,6 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>("User update successful"), HttpStatus.OK);
     }
 
-    //TODO : 권한 처리 필요
     @PreAuthorize("hasRole(T(com.ojw.planner.core.enumeration.system.user.Authority).ADMIN.description)")
     @Operation(summary = "사용자 정지", description = "사용자 아이디로 정지", tags = "User")
     @PutMapping(path = "/{userId}/ban")

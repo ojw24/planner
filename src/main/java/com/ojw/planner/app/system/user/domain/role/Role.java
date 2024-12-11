@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.security.core.GrantedAuthority;
 
 @Builder
 @DynamicUpdate
@@ -19,7 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 @Getter
 @Table(name = "role")
 @Entity
-public class Role implements GrantedAuthority {
+public class Role {
 
     @Comment("권한 아이디")
     @Id
@@ -30,10 +29,5 @@ public class Role implements GrantedAuthority {
     @Comment("권한")
     @Column(name = "authority", nullable = false)
     private Authority authority;
-
-    @Override
-    public String getAuthority() {
-        return authority.getDescription();
-    }
 
 }
