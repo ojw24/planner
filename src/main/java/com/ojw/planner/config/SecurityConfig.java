@@ -2,6 +2,7 @@ package com.ojw.planner.config;
 
 import com.ojw.planner.app.system.auth.service.token.BannedTokenService;
 import com.ojw.planner.app.system.user.service.BannedUserService;
+import com.ojw.planner.app.system.user.service.CustomUserDetailsService;
 import com.ojw.planner.core.util.JwtUtil;
 import com.ojw.planner.filter.CommonFilter;
 import com.ojw.planner.filter.JwtFilter;
@@ -28,6 +29,8 @@ public class SecurityConfig {
 
     private final BannedUserService bannedUserService;
 
+    private final CustomUserDetailsService customUserDetailsService;
+
     private final JwtUtil jwtUtil;
 
     //비밀번호 암호화를 위해 PasswordEncoder를 BCryptPasswordEncoder로 bean 등록
@@ -51,12 +54,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests((a) -> a.anyRequest().permitAll())
-            .addFilterBefore(new CommonFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterAt(new JwtFilter(bannedTokenService, bannedUserService, jwtUtil), UsernamePasswordAuthenticationFilter.class)
-            .build();
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((a) -> a.anyRequest().permitAll())
+                .addFilterBefore(new CommonFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(
+                        new JwtFilter(
+                                bannedTokenService
+                                , bannedUserService
+                                , customUserDetailsService
+                                , jwtUtil
+                        ), UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
 }

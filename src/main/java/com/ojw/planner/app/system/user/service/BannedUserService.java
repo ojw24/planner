@@ -12,7 +12,7 @@ public class BannedUserService {
 
     private final BannedUserRepository bannedUserRepository;
 
-    public String saveUser(BannedUser user) {
+    protected String saveUser(BannedUser user) {
         return bannedUserRepository.save(user).getUserId();
     }
 

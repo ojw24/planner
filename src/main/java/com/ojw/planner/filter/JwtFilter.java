@@ -3,6 +3,7 @@ package com.ojw.planner.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ojw.planner.app.system.auth.service.token.BannedTokenService;
 import com.ojw.planner.app.system.user.service.BannedUserService;
+import com.ojw.planner.app.system.user.service.CustomUserDetailsService;
 import com.ojw.planner.core.enumeration.inner.JwtClaim;
 import com.ojw.planner.core.enumeration.inner.JwtPrefix;
 import com.ojw.planner.core.enumeration.inner.JwtType;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,6 +30,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private final BannedTokenService bannedTokenService;
 
     private final BannedUserService bannedUserService;
+
+    private final CustomUserDetailsService customUserDetailsService;
 
     private final JwtUtil jwtUtil;
 
@@ -76,15 +80,17 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if(
-            bannedTokenService.existToken(jwt)
-                || bannedUserService.existUser(
+                bannedTokenService.existToken(jwt)
+                        || bannedUserService.existUser(
                         jwtUtil.getSubject(jwt, JwtType.ACCESS)
                                 .get(JwtClaim.ID.getType(), JwtClaim.ID.getType().getClass())
-                    )
+                )
         ) {
             setResponse(response, "User logged out or banned");
             return false;
         }
+
+        setAuth(jwt);
 
         return true;
 
@@ -99,7 +105,16 @@ public class JwtFilter extends OncePerRequestFilter {
         try(PrintWriter writer = response.getWriter()) {
             writer.write(new ObjectMapper().writeValueAsString(new ApiResponse<>(false, msg)));
         }
+    }
 
+    private void setAuth(String jwt) {
+        SecurityContextHolder.getContext()
+                .setAuthentication(
+                        customUserDetailsService.getUserAuth(
+                                jwtUtil.getSubject(jwt, JwtType.ACCESS)
+                                        .get(JwtClaim.ID.getType(), JwtClaim.ID.getType().getClass())
+                        )
+                );
     }
 
 }
