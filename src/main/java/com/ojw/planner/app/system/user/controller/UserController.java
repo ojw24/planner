@@ -1,8 +1,8 @@
 package com.ojw.planner.app.system.user.controller;
 
-import com.ojw.planner.app.system.user.domain.dto.UserCreateDTO;
-import com.ojw.planner.app.system.user.domain.dto.UserFindDTO;
-import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
+import com.ojw.planner.app.system.user.domain.dto.UserCreateDto;
+import com.ojw.planner.app.system.user.domain.dto.UserFindDto;
+import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,19 +35,25 @@ public class UserController {
 
     @Operation(summary = "사용자 등록", tags = "User")
     @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createUser(@RequestBody @Valid UserCreateDTO createDTO) {
-        return new ResponseEntity<>(new ApiResponse<>("User creation successful", userService.createUser(createDTO)), HttpStatus.CREATED);
+    public ResponseEntity<?> createUser(@RequestBody @Valid UserCreateDto createDto) {
+        return new ResponseEntity<>(new ApiResponse<>("User creation successful", userService.createUser(createDto)), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole(T(com.ojw.planner.core.enumeration.system.user.Authority).ADMIN.description)")
     @PageableAsQueryParam
-    @Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회", tags = "User")
-    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회(관리자)", tags = "User")
+    @GetMapping(path = "/manage", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findUsers(
-            @ParameterObject @Valid UserFindDTO userFindDto
+            @ParameterObject @Valid UserFindDto userFindDto
             , @Parameter(hidden = true) @PageableDefault(sort = {"regDtm"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return new ResponseEntity<>(new ApiResponse<>(userService.findUsers(userFindDto, pageable)), HttpStatus.OK);
+    }
+
+    @Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회", tags = "User")
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findSimpleUsers(@ParameterObject @Valid UserFindDto userFindDto) {
+        return new ResponseEntity<>(new ApiResponse<>(userService.findSimpleUsers(userFindDto)), HttpStatus.OK);
     }
 
     @Operation(summary = "사용자 상세 조회", description = "사용자 상세 조회", tags = "User")
@@ -69,7 +75,7 @@ public class UserController {
     @Operation(summary = "사용자 정보 수정", description = "사용자 정보 수정", tags = "User")
     @PutMapping(path = "/{userId}")
     public ResponseEntity<?> updateUser(
-            @RequestBody @Valid UserUpdateDTO updateDto
+            @RequestBody @Valid UserUpdateDto updateDto
             , @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
     ) {
         userService.updateUser(userId, updateDto);

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.ObjectUtils;
 
@@ -43,6 +44,10 @@ public class CustomUserDetails implements UserDetails {
 
     public UsernamePasswordAuthenticationToken getAuth() {
         return new UsernamePasswordAuthenticationToken(this, null, this.authorities);
+    }
+
+    public static CustomUserDetails getDetails() {
+        return (CustomUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 }

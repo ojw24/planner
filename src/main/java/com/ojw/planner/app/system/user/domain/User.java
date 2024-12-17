@@ -1,6 +1,6 @@
 package com.ojw.planner.app.system.user.domain;
 
-import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
+import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.core.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -52,10 +52,14 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<UserRole> roles = new ArrayList<>();
 
-    public void update(UserUpdateDTO updateDTO) {
-        if(StringUtils.hasText(updateDTO.getPassword())) this.password = updateDTO.getPassword();
-        if(StringUtils.hasText(updateDTO.getName())) this.name = updateDTO.getName();
-        if(StringUtils.hasText(updateDTO.getEmail())) this.email = updateDTO.getEmail();
+    public void update(UserUpdateDto updateDto) {
+
+        if(StringUtils.hasText(updateDto.getPassword())) this.password = updateDto.getPassword();
+
+        if(StringUtils.hasText(updateDto.getName())) this.name = updateDto.getName();
+
+        if(StringUtils.hasText(updateDto.getEmail())) this.email = updateDto.getEmail();
+
     }
 
     public void delete() {

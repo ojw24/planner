@@ -1,8 +1,8 @@
 package com.ojw.planner.config;
 
 import com.ojw.planner.app.system.auth.service.token.BannedTokenService;
-import com.ojw.planner.app.system.user.service.BannedUserService;
-import com.ojw.planner.app.system.user.service.CustomUserDetailsService;
+import com.ojw.planner.app.system.user.service.redis.BannedUserService;
+import com.ojw.planner.app.system.user.service.security.CustomUserDetailsService;
 import com.ojw.planner.core.util.JwtUtil;
 import com.ojw.planner.filter.CommonFilter;
 import com.ojw.planner.filter.JwtFilter;

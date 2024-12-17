@@ -82,7 +82,7 @@ public class AuthService {
         jwt = JwtUtil.removeType(jwt);
         bannedTokenService.saveToken(
                 BannedToken.builder()
-                        .token(JwtUtil.removeType(jwt))
+                        .token(jwt)
                         .expire(Utils.getExpire(jwtUtil.getSubject(jwt, JwtType.ACCESS).getExpiration()))
                         .build()
         );

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "사용자 수정 DTO")
-public class UserUpdateDTO {
+public class UserUpdateDto {
 
     @Schema(description = "비밀번호")
     private String password;
