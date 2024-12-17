@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "사용자 등록 DTO")
-public class UserCreateDTO {
+public class UserCreateDto {
 
     @NotBlank
     @Schema(description = "사용자아아디")

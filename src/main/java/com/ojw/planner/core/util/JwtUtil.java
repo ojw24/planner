@@ -104,7 +104,7 @@ public class JwtUtil {
     }
 
     public static String removeType(String jwt) {
-        if(jwt.contains(JwtPrefix.PREFIX.getType())) jwt = jwt.replaceAll(JwtPrefix.PREFIX.getType(), "");
+        if(jwt.contains(JwtPrefix.PREFIX.getType())) jwt = jwt.replaceFirst(JwtPrefix.PREFIX.getType(), "");
         return jwt;
     }
 

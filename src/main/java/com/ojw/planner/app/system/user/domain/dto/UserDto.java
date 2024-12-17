@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+public class UserDto {
 
     @Schema(description = "사용자 아이디")
     private String userId;
@@ -33,8 +33,8 @@ public class UserDTO {
     @Schema(description = "수정일시")
     private LocalDateTime updtDtm;
 
-    public static UserDTO of(User user) {
-        return UserDTO.builder()
+    public static UserDto of(User user) {
+        return UserDto.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
                 .email(user.getEmail())
@@ -42,6 +42,22 @@ public class UserDTO {
                 .regDtm(user.getRegDtm())
                 .updtDtm(user.getUpdtDtm())
                 .build();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserSimpleDto {
+
+        @Schema(description = "사용자 아이디")
+        private String userId;
+
+        @Schema(description = "이름")
+        private String name;
+
+        @Schema(description = "정지 여부")
+        protected Boolean isBanned;
+
     }
 
 }

@@ -1,4 +1,4 @@
-package com.ojw.planner.app.system.user.service;
+package com.ojw.planner.app.system.user.service.redis;
 
 import com.ojw.planner.app.system.user.domain.redis.BannedUser;
 import com.ojw.planner.app.system.user.repository.redis.BannedUserRepository;
@@ -12,7 +12,7 @@ public class BannedUserService {
 
     private final BannedUserRepository bannedUserRepository;
 
-    protected String saveUser(BannedUser user) {
+    public String saveUser(BannedUser user) {
         return bannedUserRepository.save(user).getUserId();
     }
 

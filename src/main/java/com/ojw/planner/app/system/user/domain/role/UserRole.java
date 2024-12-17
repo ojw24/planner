@@ -23,13 +23,13 @@ public class UserRole {
     @Comment("사용자 아이디")
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Comment("권한 아이디")
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "roleId")
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @Getter

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "사용자 조회 DTO")
-public class UserFindDTO {
+public class UserFindDto {
 
     @Schema(description = "검색 조건(ID / 이름)", example = "id")
     private SearchType searchType;

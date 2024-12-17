@@ -1,4 +1,4 @@
-package com.ojw.planner.app.system.user.service;
+package com.ojw.planner.app.system.user.service.security;
 
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.repository.UserRepository;

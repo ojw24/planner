@@ -1,15 +1,18 @@
 package com.ojw.planner.app.system.user.service;
 
 import com.ojw.planner.app.system.user.domain.User;
-import com.ojw.planner.app.system.user.domain.dto.UserCreateDTO;
-import com.ojw.planner.app.system.user.domain.dto.UserDTO;
-import com.ojw.planner.app.system.user.domain.dto.UserFindDTO;
-import com.ojw.planner.app.system.user.domain.dto.UserUpdateDTO;
+import com.ojw.planner.app.system.user.domain.dto.UserCreateDto;
+import com.ojw.planner.app.system.user.domain.dto.UserDto;
+import com.ojw.planner.app.system.user.domain.dto.UserDto.UserSimpleDto;
+import com.ojw.planner.app.system.user.domain.dto.UserFindDto;
+import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.domain.redis.BannedUser;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
+import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.repository.UserRepository;
 import com.ojw.planner.app.system.user.repository.role.RoleRepository;
 import com.ojw.planner.app.system.user.repository.role.UserRoleRepository;
+import com.ojw.planner.app.system.user.service.redis.BannedUserService;
 import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.enumeration.system.user.Authority;
 import com.ojw.planner.core.util.SMTPUtil;
@@ -26,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -48,15 +52,15 @@ public class UserService {
     /**
      * 사용자 등록
      *
-     * @param createDTO - 등록 정보
+     * @param createDto - 등록 정보
      * @return 생성된 사용자 아이디
      */
     @Transactional
-    public String createUser(UserCreateDTO createDTO) {
+    public String createUser(UserCreateDto createDto) {
 
-        validateUserId(createDTO.getUserId());
+        validateUserId(createDto.getUserId());
 
-        User createUser = userRepository.save(createDTO.toEntity(passwordEncoder.encode(createDTO.getPassword())));
+        User createUser = userRepository.save(createDto.toEntity(passwordEncoder.encode(createDto.getPassword())));
         createLinked(createUser);
 
         return createUser.getUserId();
@@ -81,23 +85,33 @@ public class UserService {
     }
 
     /**
-     * 사용자 목록 조회
+     * 사용자 목록 조회(관리자)
      *
      * @param findDto  - 검색 정보
      * @param pageable - 페이지 및 정렬 조건
      * @return 사용자 정보 목록
      */
-    public Page<UserDTO> findUsers(UserFindDTO findDto, Pageable pageable) {
+    public Page<UserDto> findUsers(UserFindDto findDto, Pageable pageable) {
         Page<User> findUsers = getUsers(findDto, pageable);
         return new PageImpl<>(
-                findUsers.getContent().stream().map(UserDTO::of).collect(Collectors.toList())
+                findUsers.getContent().stream().map(UserDto::of).collect(Collectors.toList())
                 , findUsers.getPageable()
                 , findUsers.getTotalElements()
         );
     }
 
-    private Page<User> getUsers(UserFindDTO findDto, Pageable pageable) {
+    private Page<User> getUsers(UserFindDto findDto, Pageable pageable) {
         return userRepository.findAll(findDto, pageable);
+    }
+
+    /**
+     * 사용자 목록 조회
+     *
+     * @param findDto - 검색 정보
+     * @return 사용자 정보 목록
+     */
+    public List<UserSimpleDto> findSimpleUsers(UserFindDto findDto) {
+        return userRepository.findSimples(findDto, CustomUserDetails.getDetails().getUserId());
     }
 
     /**
@@ -106,8 +120,8 @@ public class UserService {
      * @param userId - 사용자 관리 아이디
      * @return 사용자 상세 정보
      */
-    public UserDTO findUser(String userId){
-        return UserDTO.of(getUser(userId));
+    public UserDto findUser(String userId){
+        return UserDto.of(getUser(userId));
     }
 
     public User getUser(String userId) {
@@ -135,7 +149,7 @@ public class UserService {
      * @return 수정된 사용자 아이디
      */
     @Transactional
-    public String updateUser(String userId, UserUpdateDTO updateDto) {
+    public String updateUser(String userId, UserUpdateDto updateDto) {
 
         if(StringUtils.hasText(updateDto.getPassword()))
             updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));

@@ -2,8 +2,8 @@ package com.ojw.planner.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ojw.planner.app.system.auth.service.token.BannedTokenService;
-import com.ojw.planner.app.system.user.service.BannedUserService;
-import com.ojw.planner.app.system.user.service.CustomUserDetailsService;
+import com.ojw.planner.app.system.user.service.redis.BannedUserService;
+import com.ojw.planner.app.system.user.service.security.CustomUserDetailsService;
 import com.ojw.planner.core.enumeration.inner.JwtClaim;
 import com.ojw.planner.core.enumeration.inner.JwtPrefix;
 import com.ojw.planner.core.enumeration.inner.JwtType;
@@ -63,7 +63,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private boolean checkToken(HttpServletResponse response, String jwt) throws IOException {
 
         if(jwt.contains(JwtPrefix.PREFIX.getType())) {
-            jwt = jwt.replaceAll(JwtPrefix.PREFIX.getType(), "");
+            jwt = jwt.replaceFirst(JwtPrefix.PREFIX.getType(), "");
         } else {
             setResponse(response, "Invalid token type");
             return false;
