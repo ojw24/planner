@@ -145,7 +145,7 @@ public class UserService {
      * 사용자 수정
      *
      * @param userId    - 사용자 아이디
-     * @param updateDto - 사용자 수정 정보
+     * @param updateDto - 수정 정보
      * @return 수정된 사용자 아이디
      */
     @Transactional
