@@ -47,7 +47,7 @@ public class User extends BaseEntity {
     @Comment("정지 여부")
     @Column(name = "is_banned", nullable = false)
     @ColumnDefault("false")
-    protected Boolean isBanned;
+    private Boolean isBanned;
 
     @OneToMany(mappedBy = "user")
     private List<UserRole> roles = new ArrayList<>();
