@@ -56,4 +56,13 @@ public final class Utils {
         return target > now ? target - now : 0;
     }
 
+    public static boolean checkIntegral(String data) {
+        try {
+            Long.parseLong(data);
+            return true;
+        } catch(NumberFormatException e) {
+            return false;
+        }
+    }
+
 }
