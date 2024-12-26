@@ -16,6 +16,7 @@ import com.ojw.planner.app.system.user.service.redis.BannedUserService;
 import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.enumeration.system.user.Authority;
 import com.ojw.planner.core.util.SMTPUtil;
+import com.ojw.planner.core.util.ServiceUtil;
 import com.ojw.planner.core.util.dto.smtp.SMTPRequest;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
@@ -117,7 +118,7 @@ public class UserService {
     /**
      * 사용자 상세 조회
      *
-     * @param userId - 사용자 관리 아이디
+     * @param userId - 사용자 아이디
      * @return 사용자 상세 정보
      */
     public UserDto findUser(String userId){
@@ -151,6 +152,7 @@ public class UserService {
     @Transactional
     public String updateUser(String userId, UserUpdateDto updateDto) {
 
+        ServiceUtil.validateOwner(userId);
         if(StringUtils.hasText(updateDto.getPassword()))
             updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));
 
@@ -182,6 +184,7 @@ public class UserService {
      */
     @Transactional
     public void userPasswordReset(String userId) {
+        ServiceUtil.validateOwner(userId);
         smtpUtil.send(
                 SMTPRequest.builder()
                     .to(getUser(userId).getEmail())
@@ -198,6 +201,7 @@ public class UserService {
      */
     @Transactional
     public void deleteUser(String userId) {
+        ServiceUtil.validateOwner(userId);
         getUser(userId).delete();
     }
 
