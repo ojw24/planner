@@ -18,21 +18,21 @@ public class EnumConverterFactory implements ConverterFactory<String, Enum> {
     private record StringToEnumConverter<T extends Enum<T>>(Class<T> enumType) implements Converter<String, T> {
 
         @Override
-            public T convert(String source) {
+        public T convert(String source) {
 
-                T result = null;
+            T result = null;
 
-                try {
-                    //code 값을 통해, 해당 code 값을 가진 enum으로 변환시킴
-                    result = (T) this.enumType.getDeclaredMethod("ofCode", String.class).invoke(enumType.getEnumConstants()[0], source);
-                } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
-                }
-
-                return result;
-
+            try {
+                //code 값을 통해, 해당 code 값을 가진 enum으로 변환시킴
+                result = (T) this.enumType.getDeclaredMethod("ofCode", String.class).invoke(enumType.getEnumConstants()[0], source);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
             }
 
+            return result;
+
         }
+
+    }
 
 }
