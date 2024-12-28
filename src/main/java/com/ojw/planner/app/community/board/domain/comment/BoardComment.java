@@ -35,17 +35,17 @@ public class BoardComment extends BaseEntity {
 
     @Comment("게시글 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_memo_id", nullable = false)
+    @JoinColumn(name = "board_memo_id", nullable = false, updatable = false)
     private BoardMemo boardMemo;
 
     @Comment("작성자 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
 
     @Comment("상위 댓글 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment_id")
+    @JoinColumn(name = "parent_comment_id", updatable = false)
     private BoardComment parent;
 
     @Comment("내용")

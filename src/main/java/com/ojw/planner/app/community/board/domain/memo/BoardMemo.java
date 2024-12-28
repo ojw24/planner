@@ -42,7 +42,7 @@ public class BoardMemo extends BaseEntity {
 
     @Comment("작성자 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
     private User user;
 
     @Comment("제목")
