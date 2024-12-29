@@ -45,8 +45,8 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
-    protected Friend getFriend(Long friendId) {
-        return friendRepository.findById(friendId)
+    protected Friend getFriend(Long friendId, String userId) {
+        return friendRepository.findByFriendIdAndUserUserId(friendId, userId)
                 .orElseThrow(() -> new ResponseException("not exist friend : " + friendId, HttpStatus.NOT_FOUND));
     }
 
@@ -71,21 +71,17 @@ public class FriendService {
     @Transactional
     public void updateFriend(
             Long friendId
+            , String userId
             , FriendUpdateDto updateDto
             , FriendGroup friendGroup
     ) {
-        Friend updateFriend = getFriend(friendId);
+        Friend updateFriend = getFriend(friendId, userId);
         updateFriend.update(updateDto, friendGroup);
     }
 
-    /**
-     * 친구 삭제
-     *
-     * @param friendId  - 친구 아이디
-     */
     @Transactional
-    public void deleteFriend(Long friendId) {
-        friendRepository.deleteById(friendId);
+    public void deleteFriend(Long friendId, String userId) {
+        friendRepository.deleteByFriendIdAndUserUserId(friendId, userId);
     }
 
 }

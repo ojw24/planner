@@ -5,8 +5,6 @@ import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupCreateDto;
 import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupUpdateDto;
 import com.ojw.planner.app.system.friend.domain.dto.request.FriendRequestCreateDto;
 import com.ojw.planner.app.system.friend.service.FriendFacadeService;
-import com.ojw.planner.app.system.friend.service.FriendService;
-import com.ojw.planner.app.system.friend.service.group.FriendGroupService;
 import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-//TODO : 현재 사용자의 요청인지 검증 AOP or 서비스 공통 로직 추가
 @Tag(name = "Friend", description = "친구 API")
 @Validated
 @RequestMapping("/friend")
@@ -30,10 +27,6 @@ import org.springframework.web.bind.annotation.*;
 public class FriendController {
 
     private final FriendFacadeService friendFacadeService;
-
-    private final FriendGroupService friendGroupService;
-
-    private final FriendService friendService;
 
     @Operation(summary = "친구 그룹 등록", tags = "Friend")
     @PostMapping(path = "/group", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,7 +50,7 @@ public class FriendController {
             , @Parameter(name = "friendGrpId", required = true) @NotNull @Positive
             @PathVariable("friendGrpId") Long friendGrpId
     ) {
-        friendGroupService.updateFriendGroup(friendGrpId, updateDto);
+        friendFacadeService.updateFriendGroup(friendGrpId, updateDto);
         return new ResponseEntity<>(new ApiResponse<>("Friend Group update successful"), HttpStatus.OK);
     }
 
@@ -123,7 +116,7 @@ public class FriendController {
             @Parameter(name = "friendId", required = true) @NotNull @Positive
             @PathVariable("friendId") Long friendId
     ) {
-        friendService.deleteFriend(friendId);
+        friendFacadeService.deleteFriend(friendId);
         return new ResponseEntity<>(new ApiResponse<>("Friend delete successful"), HttpStatus.OK);
     }
 

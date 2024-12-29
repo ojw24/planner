@@ -4,5 +4,12 @@ import com.ojw.planner.app.system.friend.domain.Friend;
 import com.ojw.planner.app.system.friend.repository.querydsl.FriendRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface FriendRepository extends JpaRepository<Friend, Long>, FriendRepositoryCustom {
+
+    Optional<Friend> findByFriendIdAndUserUserId(Long friendId, String userId);
+
+    void deleteByFriendIdAndUserUserId(Long friendId, String userId);
+
 }
