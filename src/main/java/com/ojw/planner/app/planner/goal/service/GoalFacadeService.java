@@ -1,12 +1,18 @@
 package com.ojw.planner.app.planner.goal.service;
 
+import com.ojw.planner.app.planner.goal.domain.Goal;
 import com.ojw.planner.app.planner.goal.domain.dto.GoalCreateDto;
 import com.ojw.planner.app.planner.goal.domain.dto.GoalDto;
 import com.ojw.planner.app.planner.goal.domain.dto.GoalFindDto;
 import com.ojw.planner.app.planner.goal.domain.dto.GoalUpdateDto;
+import com.ojw.planner.app.planner.schedule.service.ScheduleService;
+import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
+import com.ojw.planner.core.enumeration.planner.goal.GoalType;
+import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -18,6 +24,8 @@ public class GoalFacadeService {
 
     private final GoalService goalService;
 
+    private final ScheduleService scheduleService;
+
     private final UserService userService;
 
     /**
@@ -28,14 +36,34 @@ public class GoalFacadeService {
      */
     @Transactional
     public Long createGoal(GoalCreateDto createDto) {
+
         String userId = CustomUserDetails.getDetails().getUserId();
-        return goalService.createGoal(
+        User user = userService.getUser(userId);
+        Goal createGoal = goalService.createGoal(
                 createDto
                 , ObjectUtils.isEmpty(createDto.getParentGoalId())
                         ? null
                         : goalService.getGoal(createDto.getParentGoalId(), userId)
-                , userService.getUser(userId)
+                , user
         );
+
+        createSchedule(createDto, user, createGoal);
+
+        return createGoal.getGoalId();
+
+    }
+
+    private void createSchedule(GoalCreateDto createDto, User user, Goal createGoal) {
+
+        if(createGoal.getGoalType().equals(GoalType.DAY)) {
+
+            if(ObjectUtils.isEmpty(createDto.getScheduleCreateDto()))
+                throw new ResponseException("schedule create info is empty", HttpStatus.BAD_REQUEST);
+
+            scheduleService.createSchedule(createDto.getScheduleCreateDto(), createGoal, user);
+
+        }
+
     }
 
     /**
@@ -70,16 +98,38 @@ public class GoalFacadeService {
      * 목표 수정
      *
      * @param goalId    - 목표 아이디
-     * @param updateDto - 등록 정보
+     * @param updateDto - 수정 정보
      * @return 수정된 목표 아이디
      */
     @Transactional
     public Long updateGoal(Long goalId, GoalUpdateDto updateDto) {
-        return goalService.updateGoal(
-                goalId
-                , updateDto
-                , CustomUserDetails.getDetails().getUserId()
-        );
+
+        String userId = CustomUserDetails.getDetails().getUserId();
+
+        Goal updateGoal = goalService.getGoal(goalId, userId);
+        goalService.validateAndSetDate(updateGoal, updateDto, userId);
+        updateGoal.update(updateDto);
+        goalService.validateParent(updateGoal);
+
+        updateSchedule(updateDto, userId, updateGoal);
+
+        return goalId;
+
+    }
+
+    private void updateSchedule(GoalUpdateDto updateDto, String userId, Goal updateGoal) {
+        if(updateGoal.getGoalType().equals(GoalType.DAY) && !ObjectUtils.isEmpty(updateDto.getScheduleUpdateDto())) {
+
+            updateDto.getScheduleUpdateDto().setStartDtm(updateDto.getScheduleUpdateDto().getStartDtm().withDayOfYear(updateGoal.getStartDate().getDayOfYear()));
+            updateDto.getScheduleUpdateDto().setEndDtm(updateDto.getScheduleUpdateDto().getEndDtm().withDayOfYear(updateGoal.getEndDate().getDayOfYear()));
+
+            scheduleService.updateSchedule(
+                    updateGoal.getSchedule().getScheduleId()
+                    , userId
+                    , updateDto.getScheduleUpdateDto()
+            );
+
+        }
     }
 
     /**

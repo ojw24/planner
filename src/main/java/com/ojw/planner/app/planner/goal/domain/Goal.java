@@ -1,6 +1,7 @@
 package com.ojw.planner.app.planner.goal.domain;
 
 import com.ojw.planner.app.planner.goal.domain.dto.GoalUpdateDto;
+import com.ojw.planner.app.planner.schedule.domain.Schedule;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.core.domain.BaseEntity;
 import com.ojw.planner.core.enumeration.planner.goal.GoalType;
@@ -47,8 +48,8 @@ public class Goal extends BaseEntity {
     private Goal parent;
 
     @Comment("목표명")
-    @Column(name = "title", nullable = false)
-    private String title;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Comment("달성 여부")
     @Column(name = "is_achieve", nullable = false)
@@ -70,9 +71,12 @@ public class Goal extends BaseEntity {
     @OneToMany(mappedBy = "parent")
     private List<Goal> children = new ArrayList<>();
 
+    @OneToOne(mappedBy = "goal", fetch = FetchType.LAZY)
+    private Schedule schedule;
+
     public void update(GoalUpdateDto updateDto) {
 
-        if(StringUtils.hasText(updateDto.getTitle())) this.title = updateDto.getTitle();
+        if(StringUtils.hasText(updateDto.getName())) this.name = updateDto.getName();
 
         if(updateDto.getIsArchive() != null) this.isAchieve = updateDto.getIsArchive();
 

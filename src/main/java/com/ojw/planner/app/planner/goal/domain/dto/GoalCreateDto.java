@@ -1,9 +1,11 @@
 package com.ojw.planner.app.planner.goal.domain.dto;
 
 import com.ojw.planner.app.planner.goal.domain.Goal;
+import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleCreateDto;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.core.enumeration.planner.goal.GoalType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -25,7 +27,7 @@ public class GoalCreateDto {
 
     @NotBlank
     @Schema(description = "목표명")
-    private String title;
+    private String name;
 
     @NotNull
     @Schema(description = "목표 타입", example = "goal_type_001")
@@ -39,11 +41,14 @@ public class GoalCreateDto {
     @Schema(description = "목표 종료일")
     private LocalDate endDate;
 
+    @Schema(description = "일정 등록 정보")
+    private @Valid ScheduleCreateDto scheduleCreateDto;
+
     public Goal toEntity(User user, Goal parent) {
         return Goal.builder()
                 .user(user)
                 .parent(parent)
-                .title(this.title)
+                .name(this.name)
                 .goalType(this.goalType)
                 .startDate(this.startDate)
                 .endDate(this.endDate)

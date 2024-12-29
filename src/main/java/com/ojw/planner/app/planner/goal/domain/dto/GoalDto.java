@@ -2,6 +2,7 @@ package com.ojw.planner.app.planner.goal.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ojw.planner.app.planner.goal.domain.Goal;
+import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class GoalDto {
     private String userName;
 
     @Schema(description = "목표명")
-    private String title;
+    private String name;
 
     @Schema(description = "달성 여부")
     private Boolean isAchieve;
@@ -55,15 +56,19 @@ public class GoalDto {
     private LocalDateTime updtDtm;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "수정일시")
+    @Schema(description = "하위 목표")
     private List<GoalDto> children;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "일정 정보")
+    private ScheduleDto schedule;
 
     public static GoalDto of(Goal goal, boolean detail) {
         return GoalDto.builder()
                 .goalId(goal.getGoalId())
                 .userId(goal.getUser().getUserId())
                 .userName(goal.getUser().getName())
-                .title(goal.getTitle())
+                .name(goal.getName())
                 .isAchieve(goal.getIsAchieve())
                 .achieve(getAchieve(goal))
                 .goalType(
@@ -84,6 +89,11 @@ public class GoalDto {
                                         .map(c -> GoalDto.of(c, true))
                                         .collect(Collectors.toList())
                                 : null
+                )
+                .schedule(
+                        ObjectUtils.isEmpty(goal.getSchedule())
+                                ? null
+                                : ScheduleDto.of(goal.getSchedule())
                 )
                 .build();
     }

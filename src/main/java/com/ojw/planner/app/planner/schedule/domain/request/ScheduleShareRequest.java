@@ -1,5 +1,6 @@
-package com.ojw.planner.app.system.friend.domain.request;
+package com.ojw.planner.app.planner.schedule.domain.request;
 
+import com.ojw.planner.app.planner.schedule.domain.Schedule;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.core.util.Utils;
 import jakarta.persistence.*;
@@ -19,24 +20,29 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Table(name = "friend_req")
+@Table(name = "schedule_share_req")
 @Entity
-public class FriendRequest {
+public class ScheduleShareRequest {
 
-    @Comment("친구 신청 아이디")
+    @Comment("신청 아이디")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "friend_req_id", nullable = false)
-    private Long friendReqId;
+    @Column(name = "req_id", nullable = false)
+    private Long reqId;
+
+    @Comment("일정 아이디")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id", nullable = false, updatable = false)
+    private Schedule schedule;
 
     @Comment("요청자 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester_id", nullable = false)
+    @JoinColumn(name = "requester_id", nullable = false, updatable = false)
     private User requester;
 
     @Comment("대상자 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_id", nullable = false)
+    @JoinColumn(name = "target_id", nullable = false, updatable = false)
     private User target;
 
     @Comment("생성일시")

@@ -28,9 +28,9 @@ public class GoalService {
     private final GoalRepository goalRepository;
 
     @Transactional
-    public Long createGoal(GoalCreateDto createDto, Goal parent, User user) {
+    public Goal createGoal(GoalCreateDto createDto, Goal parent, User user) {
         validateCreateDto(createDto, parent, user);
-        return goalRepository.save(createDto.toEntity(user, parent)).getGoalId();
+        return goalRepository.save(createDto.toEntity(user, parent));
     }
 
     private void validateCreateDto(GoalCreateDto createDto, Goal parent, User user) {
@@ -178,19 +178,7 @@ public class GoalService {
         }
     }
 
-    @Transactional
-    public Long updateGoal(Long goalId, GoalUpdateDto updateDto, String userId) {
-
-        Goal updateGoal = getGoal(goalId, userId);
-        validateAndSetDate(updateGoal, updateDto, userId);
-        updateGoal.update(updateDto);
-        validateParent(updateGoal);
-
-        return goalId;
-
-    }
-
-    private void validateAndSetDate(Goal goal, GoalUpdateDto updateDto, String userId) {
+    public void validateAndSetDate(Goal goal, GoalUpdateDto updateDto, String userId) {
 
         LocalDate startDate = updateDto.getStartDate() == null
                 ? goal.getStartDate() : updateDto.getStartDate();
@@ -226,7 +214,7 @@ public class GoalService {
 
     }
 
-    private void validateParent(Goal goal) {
+    public void validateParent(Goal goal) {
 
         switch (goal.getGoalType()) {
 

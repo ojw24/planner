@@ -48,8 +48,8 @@ public class FriendGroupService {
                 .stream().map(FriendGroupDto::of).collect(Collectors.toList());
     }
 
-    public FriendGroup getFriendGroup(Long friendGrpId) {
-        return friendGroupRepository.findById(friendGrpId)
+    public FriendGroup getFriendGroup(Long friendGrpId, String userId) {
+        return friendGroupRepository.findByFriendGrpIdAndUserUserId(friendGrpId, userId)
                 .orElseThrow(() -> new ResponseException(
                         "not exist friend group : " + friendGrpId
                         , HttpStatus.NOT_FOUND
@@ -67,15 +67,9 @@ public class FriendGroupService {
         return order == null ? 1 : order + 1;
     }
 
-    /**
-     * 친구 그룹 수정
-     *
-     * @param friendGrpId - 친구 그룹 아이디
-     * @param updateDto   - 수정 정보
-     */
     @Transactional
-    public void updateFriendGroup(Long friendGrpId, FriendGroupUpdateDto updateDto) {
-        FriendGroup updateGroup = getFriendGroup(friendGrpId);
+    public void updateFriendGroup(Long friendGrpId, String userId, FriendGroupUpdateDto updateDto) {
+        FriendGroup updateGroup = getFriendGroup(friendGrpId, userId);
         updateGroup.update(updateDto);
     }
 
@@ -85,8 +79,8 @@ public class FriendGroupService {
      * @param friendGrpId - 친구 그룹 아이디
      */
     @Transactional
-    public void deleteFriendGroup(Long friendGrpId) {
-        friendGroupRepository.delete(getFriendGroup(friendGrpId));
+    public void deleteFriendGroup(Long friendGrpId, String userId) {
+        friendGroupRepository.delete(getFriendGroup(friendGrpId, userId));
     }
 
 }

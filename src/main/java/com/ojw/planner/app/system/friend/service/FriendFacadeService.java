@@ -5,6 +5,7 @@ import com.ojw.planner.app.system.friend.domain.dto.FriendDto;
 import com.ojw.planner.app.system.friend.domain.dto.FriendUpdateDto;
 import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupCreateDto;
 import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupDto;
+import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupUpdateDto;
 import com.ojw.planner.app.system.friend.domain.dto.request.FriendRequestCreateDto;
 import com.ojw.planner.app.system.friend.domain.dto.request.FriendRequestDto;
 import com.ojw.planner.app.system.friend.domain.group.FriendGroup;
@@ -61,6 +62,21 @@ public class FriendFacadeService {
     }
 
     /**
+     * 친구 그룹 수정
+     *
+     * @param friendGrpId - 친구 그룹 아이디
+     * @param updateDto   - 수정 정보
+     */
+    @Transactional
+    public void updateFriendGroup(Long friendGrpId, FriendGroupUpdateDto updateDto) {
+        friendGroupService.updateFriendGroup(
+                friendGrpId
+                , CustomUserDetails.getDetails().getUserId()
+                , updateDto
+        );
+    }
+
+    /**
      * 친구 그룹 삭제
      *
      * @param friendGrpId - 친구 그룹 아이디
@@ -69,10 +85,11 @@ public class FriendFacadeService {
     @Transactional
     public void deleteFriendGroup(Long friendGrpId, boolean cascade) {
 
-        FriendGroup friendGroup = friendGroupService.getFriendGroup(friendGrpId);
+        String userId = CustomUserDetails.getDetails().getUserId();
+        FriendGroup friendGroup = friendGroupService.getFriendGroup(friendGrpId, userId);
         if(cascade) {
             for (Friend friend : friendGroup.getFriends()) {
-                friendService.deleteFriend(friend.getFriendId());
+                friendService.deleteFriend(friend.getFriendId(), userId);
             }
         } else {
 
@@ -89,7 +106,7 @@ public class FriendFacadeService {
 
         }
 
-        friendGroupService.deleteFriendGroup(friendGrpId);
+        friendGroupService.deleteFriendGroup(friendGrpId, userId);
 
     }
 
@@ -185,13 +202,25 @@ public class FriendFacadeService {
      */
     @Transactional
     public void updateFriend(Long friendId, FriendUpdateDto updateDto) {
+        String userId = CustomUserDetails.getDetails().getUserId();
         friendService.updateFriend(
                 friendId
+                , userId
                 , updateDto
                 , ObjectUtils.isEmpty(updateDto.getFriendGrpId())
                         ? null
-                        : friendGroupService.getFriendGroup(updateDto.getFriendGrpId())
+                        : friendGroupService.getFriendGroup(updateDto.getFriendGrpId(), userId)
         );
+    }
+
+    /**
+     * 친구 삭제
+     *
+     * @param friendId  - 친구 아이디
+     */
+    @Transactional
+    public void deleteFriend(Long friendId) {
+        friendService.deleteFriend(friendId, CustomUserDetails.getDetails().getUserId());
     }
 
 }
