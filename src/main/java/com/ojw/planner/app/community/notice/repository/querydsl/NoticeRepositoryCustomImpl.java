@@ -17,10 +17,7 @@ import static com.ojw.planner.app.community.notice.domain.QNotice.notice;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class NoticeRepositoryCustomImpl
-        extends NoticeRepositoryBooleanExpression
-        implements NoticeRepositoryCustom
-{
+public class NoticeRepositoryCustomImpl extends NoticeRepositoryBooleanExpression implements NoticeRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

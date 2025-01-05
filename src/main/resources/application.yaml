@@ -34,6 +34,18 @@ spring:
       host: ${PL_REDIS_HOST}
       port: ${PL_REDIS_PORT}
 
+  rabbitmq:
+    host: ${PL_MQ_HOST}
+    port: ${PL_MQ_PORT}
+    username: ${PL_MQ_USER}
+    password: ${PL_MQ_PASSWORD}
+
+rabbitmq:
+  friend:
+    exchange: ${PL_MQ_FRIEND_EXCHANGE}
+    request:
+      routing: ${PL_MQ_FRIEND_REQUEST_ROUTING}
+
 server:
   servlet:
     context-path: /planner/api

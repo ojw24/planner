@@ -21,16 +21,8 @@ public class FriendRequestService {
 
     private final FriendRequestRepository friendRequestRepository;
 
-    /**
-     * 친구 신청 등록
-     *
-     * @param createDto - 등록 정보
-     * @param requester - 신청자
-     * @param target    - 대상자
-     * @return 생성된 친구 신청 아이디
-     */
     @Transactional
-    public Long createFriendRequest(
+    public FriendRequest createFriendRequest(
             FriendRequestCreateDto createDto
             , User requester
             , User target
@@ -39,8 +31,7 @@ public class FriendRequestService {
         if(friendRequestRepository.findRequestCount(requester.getUserId(), target.getUserId()) > 0)
             throw new ResponseException("already exist request", HttpStatus.CONFLICT);
 
-        return friendRequestRepository
-                .save(createDto.toEntity(requester, target)).getFriendReqId();
+        return friendRequestRepository.save(createDto.toEntity(requester, target));
 
     }
 
@@ -75,7 +66,7 @@ public class FriendRequestService {
      */
     @Transactional
     public void deleteFriendRequest(Long friendReqId) {
-        friendRequestRepository.delete(getFriendRequest(friendReqId));
+        getFriendRequest(friendReqId).delete();
     }
 
 }

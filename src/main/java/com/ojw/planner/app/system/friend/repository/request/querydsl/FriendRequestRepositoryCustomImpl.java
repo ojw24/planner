@@ -23,7 +23,7 @@ public class FriendRequestRepositoryCustomImpl implements FriendRequestRepositor
                         friendRequest.requester.userId.eq(userId)
                                 .or(friendRequest.target.userId.eq(userId))
                 )
-                .orderBy(friendRequest.reqDtm.desc())
+                .orderBy(friendRequest.regDtm.desc())
                 .fetch();
     }
 

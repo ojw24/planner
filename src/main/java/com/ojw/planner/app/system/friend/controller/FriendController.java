@@ -110,7 +110,7 @@ public class FriendController {
         return new ResponseEntity<>(new ApiResponse<>("Friend update successful"), HttpStatus.OK);
     }
 
-    @Operation(summary = "친구 그룹 삭제", tags = "Friend")
+    @Operation(summary = "친구 삭제", tags = "Friend")
     @DeleteMapping(path = "/{friendId}")
     public ResponseEntity<?> deleteFriend(
             @Parameter(name = "friendId", required = true) @NotNull @Positive
@@ -118,6 +118,32 @@ public class FriendController {
     ) {
         friendFacadeService.deleteFriend(friendId);
         return new ResponseEntity<>(new ApiResponse<>("Friend delete successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "친구 신청 알림 목록 조회", tags = "Friend")
+    @GetMapping(path = "/request/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findFriendRequestNotifications() {
+        return new ResponseEntity<>(new ApiResponse<>(friendFacadeService.findFriendRequestNotifications()), HttpStatus.OK);
+    }
+
+    @Operation(summary = "친구 신청 알림 확인", tags = "Friend")
+    @PutMapping(path = "/request/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> checkFriendRequestNotification(
+            @Parameter(name = "notiId", required = true) @NotNull @Positive
+            @PathVariable("notiId") Long notiId
+    ) {
+        friendFacadeService.checkFriendRequestNotification(notiId);
+        return new ResponseEntity<>(new ApiResponse<>("Friend request notification check successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "친구 신청 알림 삭제", tags = "Friend")
+    @DeleteMapping(path = "/request/notification/{notiId}")
+    public ResponseEntity<?> deleteFriendRequestNotification(
+            @Parameter(name = "notiId", required = true) @NotNull @Positive
+            @PathVariable("notiId") Long notiId
+    ) {
+        friendFacadeService.deleteFriendRequestNotification(notiId);
+        return new ResponseEntity<>(new ApiResponse<>("Friend request notification delete successful"), HttpStatus.OK);
     }
 
 }

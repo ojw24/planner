@@ -14,10 +14,7 @@ import static com.ojw.planner.app.planner.goal.domain.QGoal.goal;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class GoalRepositoryCustomImpl
-        extends GoalRepositoryBooleanExpression
-        implements GoalRepositoryCustom
-{
+public class GoalRepositoryCustomImpl extends GoalRepositoryBooleanExpression implements GoalRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

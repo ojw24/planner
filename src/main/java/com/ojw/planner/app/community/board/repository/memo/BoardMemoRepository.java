@@ -6,8 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-public interface BoardMemoRepository
-        extends JpaRepository<BoardMemo, Long>, BoardMemoRepositoryCustom {
+public interface BoardMemoRepository extends JpaRepository<BoardMemo, Long>, BoardMemoRepositoryCustom {
 
     @Modifying
     @Query("UPDATE BoardMemo m SET m.hit = :hit WHERE m.boardMemoId = :id")

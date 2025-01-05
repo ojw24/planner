@@ -8,14 +8,20 @@ import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupDto;
 import com.ojw.planner.app.system.friend.domain.dto.group.FriendGroupUpdateDto;
 import com.ojw.planner.app.system.friend.domain.dto.request.FriendRequestCreateDto;
 import com.ojw.planner.app.system.friend.domain.dto.request.FriendRequestDto;
+import com.ojw.planner.app.system.friend.domain.dto.request.notification.FriendRequestNotificationDto;
 import com.ojw.planner.app.system.friend.domain.group.FriendGroup;
 import com.ojw.planner.app.system.friend.domain.request.FriendRequest;
+import com.ojw.planner.app.system.friend.domain.request.notification.FriendRequestNotification;
 import com.ojw.planner.app.system.friend.service.group.FriendGroupService;
 import com.ojw.planner.app.system.friend.service.request.FriendRequestService;
+import com.ojw.planner.app.system.friend.service.request.notification.FriendRequestNotificationService;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
+import com.ojw.planner.config.RabbitMqConfigProperties;
+import com.ojw.planner.core.enumeration.system.friend.NotificationType;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +38,15 @@ public class FriendFacadeService {
 
     private final FriendRequestService friendRequestService;
 
+    private final FriendRequestNotificationService friendRequestNotificationService;
+
     private final FriendService friendService;
 
     private final UserService userService; //TODO : AOP 대체?
+
+    private final RabbitTemplate rabbitTemplate;
+
+    private final RabbitMqConfigProperties rabbitMqProp;
 
     /**
      * 친구 그룹 등록
@@ -118,10 +130,43 @@ public class FriendFacadeService {
      */
     @Transactional
     public Long createFriendRequest(FriendRequestCreateDto createDto) {
-        return friendRequestService.createFriendRequest(
+
+        FriendRequest createRequest = friendRequestService.createFriendRequest(
                 createDto
                 , userService.getUser(CustomUserDetails.getDetails().getUserId())
                 , userService.getUser(createDto.getTargetId())
+        );
+
+        createNotification(createRequest, NotificationType.REQUEST);
+
+        return createRequest.getFriendReqId();
+
+    }
+
+    private void createNotification(FriendRequest createRequest, NotificationType notiType) {
+
+        FriendRequestNotification createNotification = friendRequestNotificationService.createNotification(
+                FriendRequestNotification.builder()
+                        .request(createRequest)
+                        .notiType(notiType)
+                        .build()
+        );
+
+        sendRequestToMq(createRequest, createNotification);
+
+    }
+
+    private void sendRequestToMq(
+            FriendRequest request
+            , FriendRequestNotification notification
+    ) {
+        rabbitTemplate.convertAndSend(
+                rabbitMqProp.getFriend().getExchange()
+                , rabbitMqProp.getFriend().getRequest().getRouting() +
+                        (notification.getNotiType().equals(NotificationType.REQUEST)
+                                ? request.getTarget().getUserId()
+                                : request.getRequester().getUserId())
+                , FriendRequestNotificationDto.of(notification)
         );
     }
 
@@ -166,9 +211,9 @@ public class FriendFacadeService {
                             .build()
             );
 
-        } else {
-            //TODO : 신청자에게 거절 알림 보내기
         }
+
+        createNotification(request, approve ? NotificationType.APPROVE : NotificationType.REJECT);
 
         friendRequestService.deleteFriendRequest(friendReqId);
 
@@ -216,11 +261,65 @@ public class FriendFacadeService {
     /**
      * 친구 삭제
      *
-     * @param friendId  - 친구 아이디
+     * @param friendId - 친구 아이디
      */
     @Transactional
     public void deleteFriend(Long friendId) {
         friendService.deleteFriend(friendId, CustomUserDetails.getDetails().getUserId());
+    }
+
+    /**
+     * 친구 신청 알림 목록 조회
+     */
+    public List<FriendRequestNotificationDto> findFriendRequestNotifications() {
+        return friendRequestNotificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
+    }
+
+    /**
+     * 친구 신청 알림 확인
+     *
+     * @param notiId - 알림 아이디
+     */
+    @Transactional
+    public void checkFriendRequestNotification(Long notiId) {
+
+        FriendRequestNotification notification = friendRequestNotificationService.getNotification(notiId);
+        validateNotification(notification);
+        notification.check();
+
+    }
+
+    private void validateNotification(FriendRequestNotification notification) {
+
+        String userId = CustomUserDetails.getDetails().getUserId();
+        switch (notification.getNotiType()) {
+
+            case REQUEST -> {
+                if(!notification.getRequest().getTarget().getUserId().equalsIgnoreCase(userId))
+                    throw new ResponseException("The notification not assigned to the current user", HttpStatus.BAD_REQUEST);
+            }
+
+            default -> {
+                if(!notification.getRequest().getRequester().getUserId().equalsIgnoreCase(userId))
+                    throw new ResponseException("The notification not assigned to the current user", HttpStatus.BAD_REQUEST);
+            }
+
+        }
+
+    }
+
+    /**
+     * 친구 신청 알림 삭제
+     *
+     * @param notiId - 알림 아이디
+     */
+    @Transactional
+    public void deleteFriendRequestNotification(Long notiId) {
+
+        FriendRequestNotification notification = friendRequestNotificationService.getNotification(notiId);
+        validateNotification(notification);
+        friendRequestNotificationService.deleteNotification(notiId);
+
     }
 
 }

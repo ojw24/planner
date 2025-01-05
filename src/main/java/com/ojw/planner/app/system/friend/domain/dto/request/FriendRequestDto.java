@@ -44,7 +44,7 @@ public class FriendRequestDto {
                                 ? request.getRequester().getName()
                                 : request.getTarget().getName()
                 )
-                .regDtm(request.getReqDtm())
+                .regDtm(request.getRegDtm())
                 .inbound(inbound)
                 .build();
     }
