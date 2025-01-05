@@ -19,10 +19,7 @@ import static com.ojw.planner.app.community.board.domain.memo.QBoardMemo.boardMe
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class BoardMemoRepositoryCustomImpl
-        extends BoardMemoRepositoryBooleanExpression
-        implements BoardMemoRepositoryCustom
-{
+public class BoardMemoRepositoryCustomImpl extends BoardMemoRepositoryBooleanExpression implements BoardMemoRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

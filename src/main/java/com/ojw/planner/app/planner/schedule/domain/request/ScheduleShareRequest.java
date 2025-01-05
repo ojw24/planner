@@ -45,7 +45,7 @@ public class ScheduleShareRequest {
     @JoinColumn(name = "target_id", nullable = false, updatable = false)
     private User target;
 
-    @Comment("생성일시")
+    @Comment("신청일시")
     @Column(name = "req_dtm", nullable = false, updatable = false)
     private LocalDateTime reqDtm;
 

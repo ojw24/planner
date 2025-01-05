@@ -14,10 +14,7 @@ import static com.ojw.planner.app.planner.schedule.domain.QSchedule.schedule;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class ScheduleRepositoryCustomImpl
-        extends ScheduleRepositoryBooleanExpression
-        implements ScheduleRepositoryCustom
-{
+public class ScheduleRepositoryCustomImpl extends ScheduleRepositoryBooleanExpression implements ScheduleRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

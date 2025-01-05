@@ -19,10 +19,7 @@ import static com.ojw.planner.app.system.user.domain.QUser.user;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class UserRepositoryCustomImpl
-        extends UserRepositoryBooleanExpression
-        implements UserRepositoryCustom
-{
+public class UserRepositoryCustomImpl extends UserRepositoryBooleanExpression implements UserRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 

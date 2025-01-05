@@ -54,6 +54,12 @@ dependencies {
 	//jwt secret key load를 위한 pem reader
 	implementation 'org.bouncycastle:bcprov-jdk18on:1.79'
 
+	//rabbitmq
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	//ConfigurationProperties 기능을 위한
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
 }
 
 tasks.named('test') {
