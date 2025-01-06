@@ -33,4 +33,11 @@ public class RabbitMqConfig {
                 .build();
     }
 
+    @Bean
+    public Exchange boardExchange() {
+        return ExchangeBuilder.directExchange(props.getBoard().getExchange())
+                .durable(true)
+                .build();
+    }
+
 }

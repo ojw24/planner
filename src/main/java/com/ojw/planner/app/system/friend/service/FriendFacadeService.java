@@ -18,6 +18,7 @@ import com.ojw.planner.app.system.friend.service.request.notification.FriendRequ
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
+import com.ojw.planner.core.enumeration.inner.FriendRoutes;
 import com.ojw.planner.core.enumeration.system.friend.NotificationType;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
@@ -162,7 +163,7 @@ public class FriendFacadeService {
     ) {
         rabbitTemplate.convertAndSend(
                 rabbitMqProp.getFriend().getExchange()
-                , rabbitMqProp.getFriend().getRequest().getRouting() +
+                , rabbitMqProp.getFriend().getRoutes().get(FriendRoutes.REQUEST.getKey()).getRouting() +
                         (notification.getNotiType().equals(NotificationType.REQUEST)
                                 ? request.getTarget().getUserId()
                                 : request.getRequester().getUserId())

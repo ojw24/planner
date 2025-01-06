@@ -22,8 +22,8 @@ public class BoardCommentService {
 
     private final BoardCommentRepository boardCommentRepository;
 
-    public Long saveBoardComment(BoardComment boardComment) {
-        return boardCommentRepository.save(boardComment).getBoardCommentId();
+    public BoardComment saveBoardComment(BoardComment boardComment) {
+        return boardCommentRepository.save(boardComment);
     }
 
     public Page<BoardCommentDto> findBoardComments(Long boardMemoId, Pageable pageable) {
