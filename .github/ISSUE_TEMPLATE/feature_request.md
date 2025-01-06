@@ -17,7 +17,7 @@ assignees: ''
   
   method: GET / POST / PUT / DELETE
 
-  parameters: API 정의서 참고
+  parameters: swagger 참고
 
 ```
 
