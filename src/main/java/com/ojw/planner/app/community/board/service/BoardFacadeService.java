@@ -1,25 +1,35 @@
 package com.ojw.planner.app.community.board.service;
 
 import com.ojw.planner.app.community.board.domain.comment.BoardComment;
+import com.ojw.planner.app.community.board.domain.comment.notification.BoardCommentNotification;
 import com.ojw.planner.app.community.board.domain.dto.comment.BoardCommentCreateDto;
 import com.ojw.planner.app.community.board.domain.dto.comment.BoardCommentDto;
 import com.ojw.planner.app.community.board.domain.dto.comment.BoardCommentUpdateDto;
+import com.ojw.planner.app.community.board.domain.dto.comment.notification.BoardCommentNotificationDto;
 import com.ojw.planner.app.community.board.domain.dto.memo.BoardMemoCreateDto;
 import com.ojw.planner.app.community.board.domain.dto.memo.BoardMemoUpdateDto;
 import com.ojw.planner.app.community.board.domain.memo.BoardMemo;
 import com.ojw.planner.app.community.board.domain.memo.redis.CachedBoardMemo;
 import com.ojw.planner.app.community.board.service.comment.BoardCommentService;
+import com.ojw.planner.app.community.board.service.comment.notification.BoardCommentNotificationService;
 import com.ojw.planner.app.community.board.service.memo.BoardMemoService;
 import com.ojw.planner.app.community.board.service.memo.redis.CachedBoardMemoService;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
+import com.ojw.planner.config.RabbitMqConfigProperties;
+import com.ojw.planner.core.enumeration.inner.BoardRoutes;
 import com.ojw.planner.core.util.ServiceUtil;
+import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,7 +44,13 @@ public class BoardFacadeService {
 
     private final CachedBoardMemoService cachedBoardMemoService;
 
+    private final BoardCommentNotificationService boardCommentNotificationService;
+
     private final UserService userService; //TODO : AOP 대체?
+
+    private final RabbitTemplate rabbitTemplate;
+
+    private final RabbitMqConfigProperties rabbitMqProp;
 
     /**
      * 게시글 등록
@@ -126,7 +142,8 @@ public class BoardFacadeService {
             , Long boardMemoId
             , BoardCommentCreateDto createDto
     ) {
-        return boardCommentService.saveBoardComment(
+
+        BoardComment createComment = boardCommentService.saveBoardComment(
                 createDto.toEntity(
                         boardMemoService.getBoardMemo(boardId, boardMemoId)
                         , userService.getUser(CustomUserDetails.getDetails().getUserId())
@@ -134,6 +151,37 @@ public class BoardFacadeService {
                                 ? null
                                 : boardCommentService.getBoardComment(boardMemoId, createDto.getParentCommentId())
                 )
+        );
+
+        createNotification(createComment);
+
+        return createComment.getBoardCommentId();
+
+    }
+
+    private void createNotification(BoardComment createComment) {
+
+        BoardCommentNotification createNotification = boardCommentNotificationService.createNotification(
+                BoardCommentNotification.builder()
+                        .comment(createComment)
+                        .build()
+        );
+
+        sendRequestToMq(createComment, createNotification);
+
+    }
+
+    private void sendRequestToMq(
+            BoardComment comment
+            , BoardCommentNotification notification
+    ) {
+        rabbitTemplate.convertAndSend(
+                rabbitMqProp.getBoard().getExchange()
+                , rabbitMqProp.getBoard().getRoutes().get(BoardRoutes.COMMENT.getKey()).getRouting() +
+                        (ObjectUtils.isEmpty(comment.getParent())
+                                ? comment.getBoardMemo().getUser().getUserId()
+                                : comment.getParent().getUser().getUserId())
+                , BoardCommentNotificationDto.of(notification)
         );
     }
 
@@ -192,6 +240,55 @@ public class BoardFacadeService {
     public void deleteBoardComment(Long boardId, Long boardMemoId, Long boardCommentId) {
         boardMemoService.getBoardMemo(boardId, boardMemoId);
         boardCommentService.deleteBoardComment(boardMemoId, boardCommentId);
+    }
+
+    /**
+     * 댓글 알림 목록 조회
+     */
+    public List<BoardCommentNotificationDto> findBoardCommentNotifications() {
+        return boardCommentNotificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
+    }
+
+    /**
+     * 댓글 알림 확인
+     *
+     * @param notiId - 알림 아이디
+     */
+    @Transactional
+    public void checkBoardCommentNotification(Long notiId) {
+
+        BoardCommentNotification notification = boardCommentNotificationService.getNotification(notiId);
+        validateNotification(notification);
+        notification.check();
+
+    }
+
+    private void validateNotification(BoardCommentNotification notification) {
+
+        String userId = CustomUserDetails.getDetails().getUserId();
+        if(ObjectUtils.isEmpty(notification.getComment().getParent())) {
+            if(!notification.getComment().getBoardMemo().getUser().getUserId().equalsIgnoreCase(userId))
+                throw new ResponseException("The notification not assigned to the current user", HttpStatus.BAD_REQUEST);
+
+        } else {
+            if(!notification.getComment().getParent().getUser().getUserId().equalsIgnoreCase(userId))
+                throw new ResponseException("The notification not assigned to the current user", HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    /**
+     * 댓글 알림 삭제
+     *
+     * @param notiId - 알림 아이디
+     */
+    @Transactional
+    public void deleteBoardCommentNotification(Long notiId) {
+
+        BoardCommentNotification notification = boardCommentNotificationService.getNotification(notiId);
+        validateNotification(notification);
+        boardCommentNotificationService.deleteNotification(notiId);
+
     }
 
 }

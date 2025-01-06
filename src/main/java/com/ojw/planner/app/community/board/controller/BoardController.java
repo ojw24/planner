@@ -155,4 +155,30 @@ public class BoardController {
         return new ResponseEntity<>(new ApiResponse<>("Board comment delete successful"), HttpStatus.OK);
     }
 
+    @Operation(summary = "댓글 알림 목록 조회", tags = "Board")
+    @GetMapping(path = "/memo/comment/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findBoardCommentNotifications() {
+        return new ResponseEntity<>(new ApiResponse<>(boardFacadeService.findBoardCommentNotifications()), HttpStatus.OK);
+    }
+
+    @Operation(summary = "댓글 알림 확인", tags = "Board")
+    @PutMapping(path = "/memo/comment/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> checkBoardCommentNotification(
+            @Parameter(name = "notiId", required = true) @NotNull @Positive
+            @PathVariable("notiId") Long notiId
+    ) {
+        boardFacadeService.checkBoardCommentNotification(notiId);
+        return new ResponseEntity<>(new ApiResponse<>("Board comment notification check successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "댓글 알림 삭제", tags = "Board")
+    @DeleteMapping(path = "/memo/comment/notification/{notiId}")
+    public ResponseEntity<?> deleteBoardCommentNotification(
+            @Parameter(name = "notiId", required = true) @NotNull @Positive
+            @PathVariable("notiId") Long notiId
+    ) {
+        boardFacadeService.deleteBoardCommentNotification(notiId);
+        return new ResponseEntity<>(new ApiResponse<>("Board comment notification delete successful"), HttpStatus.OK);
+    }
+
 }

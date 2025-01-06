@@ -43,8 +43,14 @@ spring:
 rabbitmq:
   friend:
     exchange: ${PL_MQ_FRIEND_EXCHANGE}
-    request:
-      routing: ${PL_MQ_FRIEND_REQUEST_ROUTING}
+    routes:
+      request:
+        routing: ${PL_MQ_FRIEND_REQUEST_ROUTING}
+  board:
+    exchange: ${PL_MQ_BOARD_EXCHANGE}
+    routes:
+      comment:
+        routing: ${PL_MQ_BOARD_COMMENT_ROUTING}
 
 server:
   servlet:
