@@ -90,4 +90,30 @@ public class ScheduleController {
         return new ResponseEntity<>(new ApiResponse<>("Schedule share request approve successful"), HttpStatus.OK);
     }
 
+    @Operation(summary = "일정 공유 신청 알림 목록 조회", tags = "Schedule")
+    @GetMapping(path = "/shedule/share/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findScheduleShareRequestNotifications() {
+        return new ResponseEntity<>(new ApiResponse<>(scheduleFacadeService.findScheduleShareRequestNotifications()), HttpStatus.OK);
+    }
+
+    @Operation(summary = "일정 공유 신청 알림 확인", tags = "Schedule")
+    @PutMapping(path = "/shedule/share/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> checkScheduleShareRequestNotification(
+            @Parameter(name = "notiId", required = true) @NotNull @Positive
+            @PathVariable("notiId") Long notiId
+    ) {
+        scheduleFacadeService.checkScheduleShareRequestNotification(notiId);
+        return new ResponseEntity<>(new ApiResponse<>("Schedule share request notification check successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "일정 공유 신청 알림 삭제", tags = "Schedule")
+    @DeleteMapping(path = "/shedule/share/notification/{notiId}")
+    public ResponseEntity<?> deleteScheduleShareRequestNotification(
+            @Parameter(name = "notiId", required = true) @NotNull @Positive
+            @PathVariable("notiId") Long notiId
+    ) {
+        scheduleFacadeService.deleteScheduleShareRequestNotification(notiId);
+        return new ResponseEntity<>(new ApiResponse<>("Schedule share request notification delete successful"), HttpStatus.OK);
+    }
+
 }

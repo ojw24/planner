@@ -19,7 +19,7 @@ import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
 import com.ojw.planner.core.enumeration.inner.FriendRoutes;
-import com.ojw.planner.core.enumeration.system.friend.NotificationType;
+import com.ojw.planner.core.enumeration.common.NotificationType;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -39,7 +39,7 @@ public class FriendFacadeService {
 
     private final FriendRequestService friendRequestService;
 
-    private final FriendRequestNotificationService friendRequestNotificationService;
+    private final FriendRequestNotificationService notificationService;
 
     private final FriendService friendService;
 
@@ -146,7 +146,7 @@ public class FriendFacadeService {
 
     private void createNotification(FriendRequest createRequest, NotificationType notiType) {
 
-        FriendRequestNotification createNotification = friendRequestNotificationService.createNotification(
+        FriendRequestNotification createNotification = notificationService.createNotification(
                 FriendRequestNotification.builder()
                         .request(createRequest)
                         .notiType(notiType)
@@ -273,7 +273,7 @@ public class FriendFacadeService {
      * 친구 신청 알림 목록 조회
      */
     public List<FriendRequestNotificationDto> findFriendRequestNotifications() {
-        return friendRequestNotificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
+        return notificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
     }
 
     /**
@@ -284,7 +284,7 @@ public class FriendFacadeService {
     @Transactional
     public void checkFriendRequestNotification(Long notiId) {
 
-        FriendRequestNotification notification = friendRequestNotificationService.getNotification(notiId);
+        FriendRequestNotification notification = notificationService.getNotification(notiId);
         validateNotification(notification);
         notification.check();
 
@@ -317,9 +317,9 @@ public class FriendFacadeService {
     @Transactional
     public void deleteFriendRequestNotification(Long notiId) {
 
-        FriendRequestNotification notification = friendRequestNotificationService.getNotification(notiId);
+        FriendRequestNotification notification = notificationService.getNotification(notiId);
         validateNotification(notification);
-        friendRequestNotificationService.deleteNotification(notiId);
+        notificationService.deleteNotification(notiId);
 
     }
 

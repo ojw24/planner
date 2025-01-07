@@ -15,6 +15,8 @@ public class RabbitMqConfigProperties {
 
     private EntityConfig board;
 
+    private EntityConfig schedule;
+
     @Data
     public static class EntityConfig {
         private String exchange;
