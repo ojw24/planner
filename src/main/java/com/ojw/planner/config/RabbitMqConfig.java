@@ -40,4 +40,11 @@ public class RabbitMqConfig {
                 .build();
     }
 
+    @Bean
+    public Exchange scheduleExchange() {
+        return ExchangeBuilder.directExchange(props.getSchedule().getExchange())
+                .durable(true)
+                .build();
+    }
+
 }

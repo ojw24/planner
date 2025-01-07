@@ -51,6 +51,12 @@ rabbitmq:
     routes:
       comment:
         routing: ${PL_MQ_BOARD_COMMENT_ROUTING}
+  schedule:
+    exchange: ${PL_MQ_SCH_EXCHANGE}
+    routes:
+      request:
+        routing: ${PL_MQ_SCH_REQUEST_ROUTING}
+
 
 server:
   servlet:

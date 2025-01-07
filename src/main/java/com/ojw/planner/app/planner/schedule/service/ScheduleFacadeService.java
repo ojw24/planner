@@ -6,13 +6,20 @@ import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleFindDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleUpdateDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.request.ScheduleShareRequestCreateDto;
+import com.ojw.planner.app.planner.schedule.domain.dto.request.notification.ScheduleShareRequestNotificationDto;
 import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
+import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
 import com.ojw.planner.app.planner.schedule.service.request.ScheduleShareRequestService;
+import com.ojw.planner.app.planner.schedule.service.request.notification.ScheduleShareRequestNotificationService;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
+import com.ojw.planner.config.RabbitMqConfigProperties;
+import com.ojw.planner.core.enumeration.common.NotificationType;
+import com.ojw.planner.core.enumeration.inner.ScheduleRoutes;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +36,13 @@ public class ScheduleFacadeService {
 
     private final ScheduleShareRequestService scheduleShareRequestService;
 
+    private final ScheduleShareRequestNotificationService notificationService;
+
     private final UserService userService;
+
+    private final RabbitTemplate rabbitTemplate;
+
+    private final RabbitMqConfigProperties rabbitMqProp;
 
     /**
      * 일정 등록
@@ -126,9 +139,42 @@ public class ScheduleFacadeService {
         }
 
         scheduleShareRequestService.createScheduleShareRequests(requests);
-
+        createNotifications(requests, NotificationType.REQUEST);
         //TODO : 대상자들에게 알림 보내기
 
+    }
+
+    private void createNotifications(List<ScheduleShareRequest> createRequests, NotificationType notiType) {
+        for (ScheduleShareRequest createRequest : createRequests) {
+            createNotification(createRequest, notiType);
+        }
+    }
+
+    private void createNotification(ScheduleShareRequest createRequest, NotificationType notiType) {
+
+        ScheduleShareRequestNotification createNotification = notificationService.createNotification(
+                ScheduleShareRequestNotification.builder()
+                        .request(createRequest)
+                        .notiType(notiType)
+                        .build()
+        );
+
+        sendRequestToMq(createRequest, createNotification);
+
+    }
+
+    private void sendRequestToMq(
+            ScheduleShareRequest request
+            , ScheduleShareRequestNotification notification
+    ) {
+        rabbitTemplate.convertAndSend(
+                rabbitMqProp.getSchedule().getExchange()
+                , rabbitMqProp.getSchedule().getRoutes().get(ScheduleRoutes.REQUEST.getKey()).getRouting() +
+                        (notification.getNotiType().equals(NotificationType.REQUEST)
+                                ? request.getTarget().getUserId()
+                                : request.getRequester().getUserId())
+                , ScheduleShareRequestNotificationDto.of(notification)
+        );
     }
 
     /**
@@ -156,11 +202,65 @@ public class ScheduleFacadeService {
                     , request.getTarget()
             );
 
-        } else {
-            //TODO : 신청자에게 거절 알림 보내기
         }
 
+        createNotification(request, approve ? NotificationType.APPROVE : NotificationType.REJECT);
+
         scheduleShareRequestService.deleteScheduleShareRequest(reqId);
+
+    }
+
+    /**
+     * 일정 공유 신청 알림 목록 조회
+     */
+    public List<ScheduleShareRequestNotificationDto> findScheduleShareRequestNotifications() {
+        return notificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
+    }
+
+    /**
+     * 일정 공유 신청 알림 확인
+     *
+     * @param notiId - 알림 아이디
+     */
+    @Transactional
+    public void checkScheduleShareRequestNotification(Long notiId) {
+
+        ScheduleShareRequestNotification notification = notificationService.getNotification(notiId);
+        validateNotification(notification);
+        notification.check();
+
+    }
+
+    private void validateNotification(ScheduleShareRequestNotification notification) {
+
+        String userId = CustomUserDetails.getDetails().getUserId();
+        switch (notification.getNotiType()) {
+
+            case REQUEST -> {
+                if(!notification.getRequest().getTarget().getUserId().equalsIgnoreCase(userId))
+                    throw new ResponseException("The notification not assigned to the current user", HttpStatus.BAD_REQUEST);
+            }
+
+            default -> {
+                if(!notification.getRequest().getRequester().getUserId().equalsIgnoreCase(userId))
+                    throw new ResponseException("The notification not assigned to the current user", HttpStatus.BAD_REQUEST);
+            }
+
+        }
+
+    }
+
+    /**
+     * 일정 공유 신청 알림 삭제
+     *
+     * @param notiId - 알림 아이디
+     */
+    @Transactional
+    public void deleteScheduleShareRequestNotification(Long notiId) {
+
+        ScheduleShareRequestNotification notification = notificationService.getNotification(notiId);
+        validateNotification(notification);
+        notificationService.deleteNotification(notiId);
 
     }
 

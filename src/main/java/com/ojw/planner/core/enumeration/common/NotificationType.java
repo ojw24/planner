@@ -1,4 +1,4 @@
-package com.ojw.planner.core.enumeration.system.friend;
+package com.ojw.planner.core.enumeration.common;
 
 import com.ojw.planner.core.enumeration.converter.EnumConverter;
 import com.ojw.planner.core.enumeration.mapper.EnumMapper;

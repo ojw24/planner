@@ -44,7 +44,7 @@ public class BoardFacadeService {
 
     private final CachedBoardMemoService cachedBoardMemoService;
 
-    private final BoardCommentNotificationService boardCommentNotificationService;
+    private final BoardCommentNotificationService notificationService;
 
     private final UserService userService; //TODO : AOP 대체?
 
@@ -161,7 +161,7 @@ public class BoardFacadeService {
 
     private void createNotification(BoardComment createComment) {
 
-        BoardCommentNotification createNotification = boardCommentNotificationService.createNotification(
+        BoardCommentNotification createNotification = notificationService.createNotification(
                 BoardCommentNotification.builder()
                         .comment(createComment)
                         .build()
@@ -246,7 +246,7 @@ public class BoardFacadeService {
      * 댓글 알림 목록 조회
      */
     public List<BoardCommentNotificationDto> findBoardCommentNotifications() {
-        return boardCommentNotificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
+        return notificationService.findNotifications(CustomUserDetails.getDetails().getUserId());
     }
 
     /**
@@ -257,7 +257,7 @@ public class BoardFacadeService {
     @Transactional
     public void checkBoardCommentNotification(Long notiId) {
 
-        BoardCommentNotification notification = boardCommentNotificationService.getNotification(notiId);
+        BoardCommentNotification notification = notificationService.getNotification(notiId);
         validateNotification(notification);
         notification.check();
 
@@ -285,9 +285,9 @@ public class BoardFacadeService {
     @Transactional
     public void deleteBoardCommentNotification(Long notiId) {
 
-        BoardCommentNotification notification = boardCommentNotificationService.getNotification(notiId);
+        BoardCommentNotification notification = notificationService.getNotification(notiId);
         validateNotification(notification);
-        boardCommentNotificationService.deleteNotification(notiId);
+        notificationService.deleteNotification(notiId);
 
     }
 

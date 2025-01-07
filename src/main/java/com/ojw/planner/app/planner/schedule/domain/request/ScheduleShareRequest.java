@@ -2,19 +2,17 @@ package com.ojw.planner.app.planner.schedule.domain.request;
 
 import com.ojw.planner.app.planner.schedule.domain.Schedule;
 import com.ojw.planner.app.system.user.domain.User;
-import com.ojw.planner.core.util.Utils;
+import com.ojw.planner.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.time.LocalDateTime;
-
-@Builder
+@SuperBuilder
 @DynamicInsert
 @DynamicUpdate
 @AllArgsConstructor
@@ -22,7 +20,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "schedule_share_req")
 @Entity
-public class ScheduleShareRequest {
+public class ScheduleShareRequest extends BaseEntity {
 
     @Comment("신청 아이디")
     @Id
@@ -45,13 +43,8 @@ public class ScheduleShareRequest {
     @JoinColumn(name = "target_id", nullable = false, updatable = false)
     private User target;
 
-    @Comment("신청일시")
-    @Column(name = "req_dtm", nullable = false, updatable = false)
-    private LocalDateTime reqDtm;
-
-    @PrePersist
-    public void onPrePersist() {
-        this.reqDtm = Utils.now();
+    public void delete() {
+        this.isDeleted = true;
     }
 
 }

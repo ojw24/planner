@@ -1,7 +1,7 @@
 package com.ojw.planner.app.system.friend.repository.request.notification.querydsl;
 
 import com.ojw.planner.app.system.friend.domain.request.notification.FriendRequestNotification;
-import com.ojw.planner.core.enumeration.system.friend.NotificationType;
+import com.ojw.planner.core.enumeration.common.NotificationType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;

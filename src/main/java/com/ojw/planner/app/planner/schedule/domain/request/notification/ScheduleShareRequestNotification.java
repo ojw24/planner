@@ -1,6 +1,6 @@
-package com.ojw.planner.app.system.friend.domain.request.notification;
+package com.ojw.planner.app.planner.schedule.domain.request.notification;
 
-import com.ojw.planner.app.system.friend.domain.request.FriendRequest;
+import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
 import com.ojw.planner.core.enumeration.common.NotificationType;
 import com.ojw.planner.core.util.Utils;
 import jakarta.persistence.*;
@@ -21,9 +21,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Table(name = "friend_req_noti")
+@Table(name = "schedule_share_req_noti")
 @Entity
-public class FriendRequestNotification {
+public class ScheduleShareRequestNotification {
 
     @Comment("알림 아이디")
     @Id
@@ -31,10 +31,10 @@ public class FriendRequestNotification {
     @Column(name = "noti_id", nullable = false)
     private Long notiId;
 
-    @Comment("친구 신청 아이디")
+    @Comment("신청 아이디")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "friend_req_id", nullable = false)
-    private FriendRequest request;
+    @JoinColumn(name = "req_id", nullable = false)
+    private ScheduleShareRequest request;
 
     @Comment("알림 타입")
     @Column(name = "noti_type", nullable = false, length = 100)

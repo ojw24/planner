@@ -18,12 +18,17 @@ public class ScheduleShareRequestService {
     private final ScheduleShareRequestRepository shareRequestRepository;
 
     @Transactional
-    public void createScheduleShareRequests(List<ScheduleShareRequest> requests) {
-        shareRequestRepository.saveAll(requests);
+    public List<ScheduleShareRequest> createScheduleShareRequests(List<ScheduleShareRequest> requests) {
+        return shareRequestRepository.saveAll(requests);
     }
 
     public ScheduleShareRequest getScheduleShareRequest(Long reqId, String userId) {
         return shareRequestRepository.findByReqIdAndTargetUserId(reqId, userId)
+                .orElseThrow(() -> new ResponseException("not exist request", HttpStatus.NOT_FOUND));
+    }
+
+    public ScheduleShareRequest getScheduleShareRequest(Long reqId) {
+        return shareRequestRepository.findById(reqId)
                 .orElseThrow(() -> new ResponseException("not exist request", HttpStatus.NOT_FOUND));
     }
 
@@ -32,7 +37,7 @@ public class ScheduleShareRequestService {
     }
 
     public void deleteScheduleShareRequest(Long reqId) {
-        shareRequestRepository.deleteById(reqId);
+        getScheduleShareRequest(reqId).delete();
     }
 
 }

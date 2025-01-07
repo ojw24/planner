@@ -1,0 +1,8 @@
+package com.ojw.planner.app.planner.schedule.repository.request.notification;
+
+import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
+import com.ojw.planner.app.planner.schedule.repository.request.notification.querydsl.ScheduleShareRequestNotificationRepositoryCustom;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ScheduleShareRequestNotificationRepository extends JpaRepository<ScheduleShareRequestNotification, Long>, ScheduleShareRequestNotificationRepositoryCustom {
+}
