@@ -18,8 +18,8 @@ import com.ojw.planner.app.system.friend.service.request.notification.FriendRequ
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
-import com.ojw.planner.core.enumeration.inner.FriendRoutes;
 import com.ojw.planner.core.enumeration.common.NotificationType;
+import com.ojw.planner.core.enumeration.inner.FriendRoutes;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -144,17 +144,30 @@ public class FriendFacadeService {
 
     }
 
-    private void createNotification(FriendRequest createRequest, NotificationType notiType) {
+    private void createNotification(FriendRequest request, NotificationType notiType) {
 
-        FriendRequestNotification createNotification = notificationService.createNotification(
-                FriendRequestNotification.builder()
-                        .request(createRequest)
-                        .notiType(notiType)
-                        .build()
-        );
+        if(checkUserSetting(request, notiType)) {
 
-        sendRequestToMq(createRequest, createNotification);
+            FriendRequestNotification createNotification = notificationService.createNotification(
+                    FriendRequestNotification.builder()
+                            .request(request)
+                            .notiType(notiType)
+                            .build()
+            );
 
+            sendRequestToMq(request, createNotification);
+
+        }
+
+    }
+
+    private boolean checkUserSetting(
+            FriendRequest request
+            , NotificationType notiType
+    ) {
+        return notiType.equals(NotificationType.REQUEST)
+                ? request.getTarget().getSetting().getIsFriendReqNoti()
+                : request.getRequester().getSetting().getIsFriendReqNoti();
     }
 
     private void sendRequestToMq(
@@ -177,9 +190,7 @@ public class FriendFacadeService {
      * @return 친구 그룹 정보 목록
      */
     public List<FriendRequestDto> findFriendRequests() {
-        return friendRequestService.findFriendRequests(
-                CustomUserDetails.getDetails().getUserId()
-        );
+        return friendRequestService.findFriendRequests(CustomUserDetails.getDetails().getUserId());
     }
 
     /**

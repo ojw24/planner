@@ -6,12 +6,15 @@ import com.ojw.planner.app.system.user.domain.dto.UserDto;
 import com.ojw.planner.app.system.user.domain.dto.UserDto.UserSimpleDto;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDto;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
+import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto.UserSettingUpdateDto;
 import com.ojw.planner.app.system.user.domain.redis.BannedUser;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
+import com.ojw.planner.app.system.user.domain.setting.UserSetting;
 import com.ojw.planner.app.system.user.repository.UserRepository;
 import com.ojw.planner.app.system.user.repository.role.RoleRepository;
 import com.ojw.planner.app.system.user.repository.role.UserRoleRepository;
+import com.ojw.planner.app.system.user.repository.setting.UserSettingRepository;
 import com.ojw.planner.app.system.user.service.redis.BannedUserService;
 import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.enumeration.system.user.Authority;
@@ -44,6 +47,8 @@ public class UserService {
 
     private final UserRoleRepository userRoleRepository;
 
+    private final UserSettingRepository userSettingRepository;
+
     private final RoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -74,6 +79,11 @@ public class UserService {
     }
 
     private void createLinked(User user) {
+        createRole(user);
+        createSetting(user);
+    }
+
+    private void createRole(User user) {
         userRoleRepository.save(
                 UserRole.builder()
                         .user(user)
@@ -81,6 +91,14 @@ public class UserService {
                                 roleRepository.findByAuthority(Authority.USER)
                                         .orElseThrow(() -> new RuntimeException("Internal Server Error"))
                         )
+                        .build()
+        );
+    }
+
+    private void createSetting(User user) {
+        userSettingRepository.save(
+                UserSetting.builder()
+                        .user(user)
                         .build()
         );
     }
@@ -156,9 +174,20 @@ public class UserService {
         if(StringUtils.hasText(updateDto.getPassword()))
             updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));
 
-        getUser(userId).update(updateDto);
+        User updateUser = getUser(userId);
+        updateUser.update(updateDto);
+        updateLinked(updateUser, updateDto);
+
         return userId;
 
+    }
+
+    private void updateLinked(User user, UserUpdateDto updateDto) {
+        updateSetting(user, updateDto.getSettingUpdateDto());
+    }
+
+    private void updateSetting(User user, UserSettingUpdateDto updateDto) {
+        if(!ObjectUtils.isEmpty(updateDto)) user.getSetting().update(updateDto);
     }
 
     /**

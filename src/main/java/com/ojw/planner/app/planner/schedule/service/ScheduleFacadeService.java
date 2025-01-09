@@ -6,6 +6,7 @@ import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleFindDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleUpdateDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.request.ScheduleShareRequestCreateDto;
+import com.ojw.planner.app.planner.schedule.domain.dto.request.ScheduleShareRequestDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.request.notification.ScheduleShareRequestNotificationDto;
 import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
 import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -144,23 +146,45 @@ public class ScheduleFacadeService {
 
     }
 
+    /**
+     * 일정 공유 신청 목록 정보 조회
+     */
+    public List<ScheduleShareRequestDto> findScheduleShareRequests() {
+        return scheduleShareRequestService.getScheduleShareRequests(
+                CustomUserDetails.getDetails().getUserId()
+        ).stream().map(ScheduleShareRequestDto::of).collect(Collectors.toList());
+    }
+
     private void createNotifications(List<ScheduleShareRequest> createRequests, NotificationType notiType) {
         for (ScheduleShareRequest createRequest : createRequests) {
             createNotification(createRequest, notiType);
         }
     }
 
-    private void createNotification(ScheduleShareRequest createRequest, NotificationType notiType) {
+    private void createNotification(ScheduleShareRequest request, NotificationType notiType) {
 
-        ScheduleShareRequestNotification createNotification = notificationService.createNotification(
-                ScheduleShareRequestNotification.builder()
-                        .request(createRequest)
-                        .notiType(notiType)
-                        .build()
-        );
+        if(checkUserSetting(request, notiType)) {
 
-        sendRequestToMq(createRequest, createNotification);
+            ScheduleShareRequestNotification createNotification = notificationService.createNotification(
+                    ScheduleShareRequestNotification.builder()
+                            .request(request)
+                            .notiType(notiType)
+                            .build()
+            );
 
+            sendRequestToMq(request, createNotification);
+
+        }
+
+    }
+
+    private boolean checkUserSetting(
+            ScheduleShareRequest request
+            , NotificationType notiType
+    ) {
+        return notiType.equals(NotificationType.REQUEST)
+                ? request.getTarget().getSetting().getIsSchShareReqNoti()
+                : request.getRequester().getSetting().getIsSchShareReqNoti();
     }
 
     private void sendRequestToMq(
