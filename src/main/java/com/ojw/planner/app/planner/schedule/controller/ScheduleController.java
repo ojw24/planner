@@ -76,6 +76,12 @@ public class ScheduleController {
         return new ResponseEntity<>(new ApiResponse<>("Schedule share request creation successful"), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "일정 공유 신청 목록 조회", tags = "Schedule")
+    @GetMapping(path = "/share", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findScheduleShareRequests() {
+        return new ResponseEntity<>(new ApiResponse<>(scheduleFacadeService.findScheduleShareRequests()), HttpStatus.OK);
+    }
+
     @Operation(summary = "일정 공유 신청 승인", tags = "Schedule")
     @PutMapping(path = "/{scheduleId}/share/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> approveScheduleShareRequest(
@@ -91,13 +97,13 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 공유 신청 알림 목록 조회", tags = "Schedule")
-    @GetMapping(path = "/shedule/share/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/share/notification", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findScheduleShareRequestNotifications() {
         return new ResponseEntity<>(new ApiResponse<>(scheduleFacadeService.findScheduleShareRequestNotifications()), HttpStatus.OK);
     }
 
     @Operation(summary = "일정 공유 신청 알림 확인", tags = "Schedule")
-    @PutMapping(path = "/shedule/share/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/share/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkScheduleShareRequestNotification(
             @Parameter(name = "notiId", required = true) @NotNull @Positive
             @PathVariable("notiId") Long notiId
@@ -107,7 +113,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 공유 신청 알림 삭제", tags = "Schedule")
-    @DeleteMapping(path = "/shedule/share/notification/{notiId}")
+    @DeleteMapping(path = "/share/notification/{notiId}")
     public ResponseEntity<?> deleteScheduleShareRequestNotification(
             @Parameter(name = "notiId", required = true) @NotNull @Positive
             @PathVariable("notiId") Long notiId

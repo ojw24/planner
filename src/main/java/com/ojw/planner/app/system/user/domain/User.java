@@ -2,6 +2,7 @@ package com.ojw.planner.app.system.user.domain;
 
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
+import com.ojw.planner.app.system.user.domain.setting.UserSetting;
 import com.ojw.planner.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -51,6 +52,9 @@ public class User extends BaseEntity {
 
     @OneToMany(mappedBy = "user")
     private List<UserRole> roles = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user")
+    private UserSetting setting;
 
     public void update(UserUpdateDto updateDto) {
 

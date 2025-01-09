@@ -1,6 +1,8 @@
 package com.ojw.planner.app.system.friend.domain.dto.request.notification;
 
 import com.ojw.planner.app.system.friend.domain.request.notification.FriendRequestNotification;
+import com.ojw.planner.core.domain.Notification;
+import com.ojw.planner.core.enumeration.common.NotificationDiv;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FriendRequestNotificationDto {
+public class FriendRequestNotificationDto implements Notification {
 
     @Schema(description = "알림 아이디")
     private Long notiId;
@@ -43,6 +45,9 @@ public class FriendRequestNotificationDto {
     @Schema(description = "생성 일시")
     private LocalDateTime regDtm;
 
+    @Schema(description = "알림 구분")
+    private NotificationDiv notification;
+
     public static FriendRequestNotificationDto of(FriendRequestNotification notification) {
         return FriendRequestNotificationDto.builder()
                 .notiId(notification.getNotiId())
@@ -58,6 +63,7 @@ public class FriendRequestNotificationDto {
                 )
                 .isChecked(notification.getIsChecked())
                 .regDtm(notification.getRegDtm())
+                .notification(NotificationDiv.FRIEND_REQUEST)
                 .build();
     }
 

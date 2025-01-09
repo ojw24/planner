@@ -1,6 +1,9 @@
 package com.ojw.planner.app.planner.schedule.domain.dto.request.notification;
 
+import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
+import com.ojw.planner.core.domain.Notification;
+import com.ojw.planner.core.enumeration.common.NotificationDiv;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -14,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleShareRequestNotificationDto {
+public class ScheduleShareRequestNotificationDto implements Notification {
 
     @Schema(description = "알림 아이디")
     private Long notiId;
@@ -43,6 +46,12 @@ public class ScheduleShareRequestNotificationDto {
     @Schema(description = "생성 일시")
     private LocalDateTime regDtm;
 
+    @Schema(description = "일정 정보")
+    private ScheduleDto schedule;
+
+    @Schema(description = "알림 구분")
+    private NotificationDiv notification;
+
     public static ScheduleShareRequestNotificationDto of(ScheduleShareRequestNotification notification) {
         return ScheduleShareRequestNotificationDto.builder()
                 .notiId(notification.getNotiId())
@@ -58,6 +67,8 @@ public class ScheduleShareRequestNotificationDto {
                 )
                 .isChecked(notification.getIsChecked())
                 .regDtm(notification.getRegDtm())
+                .schedule(ScheduleDto.of(notification.getRequest().getSchedule()))
+                .notification(NotificationDiv.SCHEDULE_SHARE_REQUEST)
                 .build();
     }
 

@@ -22,6 +22,10 @@ public class ScheduleShareRequestService {
         return shareRequestRepository.saveAll(requests);
     }
 
+    public List<ScheduleShareRequest> getScheduleShareRequests(String userId) {
+        return shareRequestRepository.findAllByTargetUserId(userId);
+    }
+
     public ScheduleShareRequest getScheduleShareRequest(Long reqId, String userId) {
         return shareRequestRepository.findByReqIdAndTargetUserId(reqId, userId)
                 .orElseThrow(() -> new ResponseException("not exist request", HttpStatus.NOT_FOUND));

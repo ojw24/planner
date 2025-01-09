@@ -159,16 +159,26 @@ public class BoardFacadeService {
 
     }
 
-    private void createNotification(BoardComment createComment) {
+    private void createNotification(BoardComment comment) {
 
-        BoardCommentNotification createNotification = notificationService.createNotification(
-                BoardCommentNotification.builder()
-                        .comment(createComment)
-                        .build()
-        );
+        if(checkUserSetting(comment)) {
 
-        sendRequestToMq(createComment, createNotification);
+            BoardCommentNotification createNotification = notificationService.createNotification(
+                    BoardCommentNotification.builder()
+                            .comment(comment)
+                            .build()
+            );
 
+            sendRequestToMq(comment, createNotification);
+
+        }
+
+    }
+
+    private boolean checkUserSetting(BoardComment comment) {
+        return ObjectUtils.isEmpty(comment.getParent())
+                ? comment.getBoardMemo().getUser().getSetting().getIsSchShareReqNoti()
+                : comment.getParent().getUser().getSetting().getIsSchShareReqNoti();
     }
 
     private void sendRequestToMq(

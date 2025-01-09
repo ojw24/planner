@@ -20,4 +20,24 @@ public class UserUpdateDto {
     @Schema(description = "이메일")
     private String email;
 
+    @Schema(description = "설정 수정 정보")
+    private UserSettingUpdateDto settingUpdateDto;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "사용자 설정 수정 DTO")
+    public static class UserSettingUpdateDto {
+
+        @Schema(description = "친구 신청 알림 여부")
+        private Boolean isFriendReqNoti;
+
+        @Schema(description = "일정 공유 신청 알림 여부")
+        private Boolean isSchShareReqNoti;
+
+        @Schema(description = "댓글 알림 여부")
+        private Boolean isCommentNoti;
+
+    }
+
 }

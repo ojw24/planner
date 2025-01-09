@@ -3,6 +3,7 @@ package com.ojw.planner.app.system.user.controller;
 import com.ojw.planner.app.system.user.domain.dto.UserCreateDto;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDto;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
+import com.ojw.planner.app.system.user.service.UserFacadeService;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 public class UserController {
+
+    private final UserFacadeService userFacadeService;
 
     private final UserService userService;
 
@@ -106,6 +109,12 @@ public class UserController {
     ) {
         userService.deleteUser(userId);
         return new ResponseEntity<>(new ApiResponse<>("User delete successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "사용자 알림 목록 조회", tags = "User")
+    @GetMapping(path = "/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findUserNotifications() {
+        return new ResponseEntity<>(new ApiResponse<>(userFacadeService.findNotifications()), HttpStatus.OK);
     }
 
 }

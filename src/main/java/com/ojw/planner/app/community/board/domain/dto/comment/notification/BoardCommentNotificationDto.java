@@ -1,6 +1,8 @@
 package com.ojw.planner.app.community.board.domain.dto.comment.notification;
 
 import com.ojw.planner.app.community.board.domain.comment.notification.BoardCommentNotification;
+import com.ojw.planner.core.domain.Notification;
+import com.ojw.planner.core.enumeration.common.NotificationDiv;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardCommentNotificationDto {
+public class BoardCommentNotificationDto implements Notification {
 
     @Schema(description = "알림 아이디")
     private Long notiId;
@@ -36,6 +38,9 @@ public class BoardCommentNotificationDto {
     @Schema(description = "생성 일시")
     private LocalDateTime regDtm;
 
+    @Schema(description = "알림 구분")
+    private NotificationDiv notification;
+
     public static BoardCommentNotificationDto of(BoardCommentNotification notification) {
         return BoardCommentNotificationDto.builder()
                 .notiId(notification.getNotiId())
@@ -45,6 +50,7 @@ public class BoardCommentNotificationDto {
                 .writerName(notification.getComment().getUser().getName())
                 .isChecked(notification.getIsChecked())
                 .regDtm(notification.getRegDtm())
+                .notification(NotificationDiv.COMMENT)
                 .build();
     }
 
