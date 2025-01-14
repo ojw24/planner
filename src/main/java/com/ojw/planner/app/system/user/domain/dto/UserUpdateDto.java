@@ -23,6 +23,9 @@ public class UserUpdateDto {
     @Schema(description = "설정 수정 정보")
     private UserSettingUpdateDto settingUpdateDto;
 
+    @Schema(description = "첨부파일 아이디(수정 안 할 경우 기존값, 삭제할 경우 null)")
+    private Long attcFileId;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

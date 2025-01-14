@@ -63,6 +63,9 @@ dependencies {
 	//ConfigurationProperties 기능을 위한
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	implementation 'commons-io:commons-io:2.18.0'
+
 }
 
 tasks.named('test') {

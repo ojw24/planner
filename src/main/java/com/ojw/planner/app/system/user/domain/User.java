@@ -1,5 +1,6 @@
 package com.ojw.planner.app.system.user.domain;
 
+import com.ojw.planner.app.system.attachedFile.domain.AttachedFile;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.app.system.user.domain.setting.UserSetting;
@@ -56,13 +57,20 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user")
     private UserSetting setting;
 
-    public void update(UserUpdateDto updateDto) {
+    @Comment("첨부파일 아이디")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attc_file_id")
+    private AttachedFile attachedFile;
+
+    public void update(UserUpdateDto updateDto, AttachedFile attachedFile) {
 
         if(StringUtils.hasText(updateDto.getPassword())) this.password = updateDto.getPassword();
 
         if(StringUtils.hasText(updateDto.getName())) this.name = updateDto.getName();
 
         if(StringUtils.hasText(updateDto.getEmail())) this.email = updateDto.getEmail();
+
+        this.attachedFile = attachedFile;
 
     }
 

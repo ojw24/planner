@@ -1,5 +1,7 @@
 package com.ojw.planner.app.system.user.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.ojw.planner.app.system.attachedFile.domain.dto.AttachedFileDto;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.setting.UserSetting;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 
@@ -34,10 +37,19 @@ public class UserDto {
     @Schema(description = "수정일시")
     private LocalDateTime updtDtm;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "설정")
     private UserSettingDto setting;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "첨부 파일")
+    private AttachedFileDto file;
+
     public static UserDto of(User user) {
+        return of(user, false);
+    }
+
+    public static UserDto of(User user, boolean detail) {
         return UserDto.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
@@ -45,7 +57,13 @@ public class UserDto {
                 .isBanned(user.getIsBanned())
                 .regDtm(user.getRegDtm())
                 .updtDtm(user.getUpdtDtm())
-                .setting(UserSettingDto.of(user.getSetting()))
+                .setting(detail ? UserSettingDto.of(user.getSetting()) : null)
+                .file(detail
+                        ? ObjectUtils.isEmpty(user.getAttachedFile())
+                            ? null
+                            : AttachedFileDto.of(user.getAttachedFile())
+                        : null
+                )
                 .build();
     }
 
