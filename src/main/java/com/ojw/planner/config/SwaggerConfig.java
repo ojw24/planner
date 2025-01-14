@@ -1,5 +1,6 @@
 package com.ojw.planner.config;
 
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -14,13 +15,40 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi allApi() {
         return GroupedOpenApi.builder()
-                .group("0. All-API")
+                .group("0. All API")
                 .packagesToScan("com.ojw.planner.app")
-                .addOpenApiCustomizer(getSecurityCustomizer())
+                .addOpenApiCustomizer(getSecurityCustomizer("All"))
                 .build();
     }
 
-    private OpenApiCustomizer getSecurityCustomizer() {
+    @Bean
+    public GroupedOpenApi systemApi() {
+        return GroupedOpenApi.builder()
+                .group("1. System API")
+                .packagesToScan("com.ojw.planner.app.system")
+                .addOpenApiCustomizer(getSecurityCustomizer("System"))
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi plannerApi() {
+        return GroupedOpenApi.builder()
+                .group("1. Planner API")
+                .packagesToScan("com.ojw.planner.app.planner")
+                .addOpenApiCustomizer(getSecurityCustomizer("Planner"))
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi communityApi() {
+        return GroupedOpenApi.builder()
+                .group("2. Community API")
+                .packagesToScan("com.ojw.planner.app.community")
+                .addOpenApiCustomizer(getSecurityCustomizer("Community"))
+                .build();
+    }
+
+    private OpenApiCustomizer getSecurityCustomizer(String api) {
         SecurityScheme securityScheme = new SecurityScheme()
                 .name(HttpHeaders.AUTHORIZATION)
                 .scheme("bearer")
@@ -30,7 +58,18 @@ public class SwaggerConfig {
 
         return OpenApi -> OpenApi
                 .addSecurityItem(new SecurityRequirement().addList("Authorization"))
+                .info(apiInfo(api))
                 .getComponents().addSecuritySchemes("Authorization", securityScheme);
+    }
+
+    private Info apiInfo(String api) {
+        return new Info()
+                .title("Planner - " + api + " API definition")
+                .description(
+                        api + " API definition and test UI"
+                                + "<br />"
+                                + "(Do Test the API by referring to the Schema(DTO) definition below)"
+                );
     }
 
 }

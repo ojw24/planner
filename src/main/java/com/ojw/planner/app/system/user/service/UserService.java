@@ -1,5 +1,6 @@
 package com.ojw.planner.app.system.user.service;
 
+import com.ojw.planner.app.system.attachedFile.repository.AttachedFileRepository;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.dto.UserCreateDto;
 import com.ojw.planner.app.system.user.domain.dto.UserDto;
@@ -50,6 +51,8 @@ public class UserService {
     private final UserSettingRepository userSettingRepository;
 
     private final RoleRepository roleRepository;
+
+    private final AttachedFileRepository attachedFileRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -140,7 +143,7 @@ public class UserService {
      * @return 사용자 상세 정보
      */
     public UserDto findUser(String userId){
-        return UserDto.of(getUser(userId));
+        return UserDto.of(getUser(userId), true);
     }
 
     public User getUser(String userId) {
@@ -175,7 +178,13 @@ public class UserService {
             updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));
 
         User updateUser = getUser(userId);
-        updateUser.update(updateDto);
+        updateUser.update(
+                updateDto
+                , ObjectUtils.isEmpty(updateDto.getAttcFileId())
+                        ? null
+                        : attachedFileRepository.findById(updateDto.getAttcFileId())
+                            .orElse(null)
+        );
         updateLinked(updateUser, updateDto);
 
         return userId;
