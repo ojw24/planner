@@ -15,11 +15,15 @@ import com.ojw.planner.core.util.JwtUtil;
 import com.ojw.planner.core.util.Utils;
 import com.ojw.planner.exception.ResponseException;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -70,6 +74,17 @@ public class AuthService {
 
     }
 
+    public String generateRefreshCookie(String refreshToken) {
+        return ResponseCookie.from(JwtType.REFRESH.name(), refreshToken)
+                .httpOnly(true)
+                //.secure(true) //TODO : 서버 배포 후 도메인 및 ssl 설정 시 해제
+                .path("/")
+                .maxAge(JwtType.REFRESH.getExpire() / 1000)
+                .sameSite(org.springframework.boot.web.server.Cookie.SameSite.STRICT.attributeValue())
+                .build()
+                .toString();
+    }
+
     /**
      * 로그아웃
      *
@@ -116,12 +131,15 @@ public class AuthService {
     /**
      * 토큰 리프레쉬
      *
-     * @param refreshDto - 리프레쉬 dto
+     * @param request - http 요청
      * @return 갱신 토큰 정보
      */
-    public LoginResponse refresh(RefreshDto refreshDto) {
+    public LoginResponse refresh(HttpServletRequest request) {
 
-        String refreshToken = refreshDto.getRefreshToken();
+        String refreshToken = getRefreshToken(request);
+        if(!StringUtils.hasText(refreshToken))
+            throw new ResponseException("not exist token in request", HttpStatus.UNAUTHORIZED);
+
         User user = userService.getUser(
                 jwtUtil.getSubject(refreshToken, JwtType.REFRESH)
                         .get(JwtClaim.ID.getType(), JwtClaim.ID.getType().getClass())
@@ -133,8 +151,29 @@ public class AuthService {
         return LoginResponse.builder()
                 .userId(user.getUserId())
                 .accessToken(jwtUtil.createToken(user, JwtType.ACCESS))
-                .refreshToken(refreshToken)
                 .build();
+
+    }
+
+    private String getRefreshToken(HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+        String refreshToken = null;
+
+        if (cookies != null) {
+
+            for (Cookie cookie : cookies) {
+
+                if (JwtType.REFRESH.name().equalsIgnoreCase(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+
+            }
+
+        }
+
+        return refreshToken;
 
     }
 

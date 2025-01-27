@@ -2,11 +2,13 @@ package com.ojw.planner.app.system.auth.controller;
 
 import com.ojw.planner.app.system.auth.domain.dto.RefreshDto;
 import com.ojw.planner.app.system.auth.domain.log.dto.LoginRequest;
+import com.ojw.planner.app.system.auth.domain.log.dto.LoginResponse;
 import com.ojw.planner.app.system.auth.service.AuthService;
 import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +29,10 @@ public class AuthController {
     @Operation(summary = "로그인", tags = "Auth")
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
-        return new ResponseEntity<>(new ApiResponse<>(authService.login(request)), HttpStatus.OK);
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok()
+                .header(authService.generateRefreshCookie(response.getRefreshToken()))
+                .body(response);
     }
 
     @Operation(summary = "로그아웃", tags = "Auth")
@@ -42,8 +47,8 @@ public class AuthController {
 
     @Operation(summary = "토큰 갱신", tags = "Auth")
     @PostMapping(path = "/refresh")
-    public ResponseEntity<?> refresh(@RequestBody @Valid RefreshDto refreshDto) {
-        return new ResponseEntity<>(new ApiResponse<>(authService.refresh(refreshDto)), HttpStatus.OK);
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        return new ResponseEntity<>(new ApiResponse<>(authService.refresh(request)), HttpStatus.OK);
     }
 
 }

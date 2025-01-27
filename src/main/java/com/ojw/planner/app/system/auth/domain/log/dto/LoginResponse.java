@@ -1,5 +1,6 @@
 package com.ojw.planner.app.system.auth.domain.log.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ public class LoginResponse {
 
     private String accessToken;
 
+    @JsonIgnore
     private String refreshToken;
 
 }

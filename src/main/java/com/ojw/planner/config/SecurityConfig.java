@@ -48,6 +48,7 @@ public class SecurityConfig {
                 , "/webjars/**"
                 , "/error"
                 , "/auth/login"
+                , "/auth/refresh"
         );
     }
 
