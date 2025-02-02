@@ -49,11 +49,11 @@ public class AuthService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
 
-        User user = userService.getUser(request.getUserId());
+        User user = userService.getUser(request.getUserId(), true);
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword()))
-            throw new ResponseException("Password is wrong", HttpStatus.UNAUTHORIZED);
+            throw new ResponseException("아이디 혹은 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED);
 
-        if(user.getIsBanned()) throw new ResponseException("banned user : " + request.getUserId(), HttpStatus.FORBIDDEN);
+        if(user.getIsBanned()) throw new ResponseException("정지된 유저 : " + request.getUserId(), HttpStatus.FORBIDDEN);
 
         String accessToken = jwtUtil.createToken(user, JwtType.ACCESS);
         String refreshToken = jwtUtil.createToken(user, JwtType.REFRESH);
@@ -123,7 +123,7 @@ public class AuthService {
             if(!jwtUtil.validateToken(jwt, JwtType.REFRESH))
                 throw new ResponseException("Invalid refresh token", HttpStatus.UNAUTHORIZED);
         } catch (ExpiredJwtException e) {
-            throw new ResponseException("Refresh token is expired. Please login again.", HttpStatus.FORBIDDEN);
+            throw new ResponseException("세션이 만료되었습니다. 다시 로그인 해주세요.", HttpStatus.FORBIDDEN);
         }
 
     }

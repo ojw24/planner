@@ -1,5 +1,6 @@
 package com.ojw.planner.app.system.user.service;
 
+import com.ojw.planner.app.system.attachedFile.domain.AttachedFile;
 import com.ojw.planner.app.system.attachedFile.repository.AttachedFileRepository;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.dto.UserCreateDto;
@@ -8,6 +9,7 @@ import com.ojw.planner.app.system.user.domain.dto.UserDto.UserSimpleDto;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDto;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto.UserSettingUpdateDto;
+import com.ojw.planner.app.system.user.domain.dto.redis.PwdResetRequest;
 import com.ojw.planner.app.system.user.domain.redis.BannedUser;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
@@ -24,6 +26,7 @@ import com.ojw.planner.core.util.ServiceUtil;
 import com.ojw.planner.core.util.dto.smtp.SMTPRequest;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +44,12 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Service
 public class UserService {
+
+    @Value("${spring.mail.path.home}")
+    private String homePath;
+
+    @Value("${spring.mail.path.password}")
+    private String passwordPath;
 
     private final BannedUserService bannedUserService;
 
@@ -67,7 +76,7 @@ public class UserService {
     @Transactional
     public String createUser(UserCreateDto createDto) {
 
-        validateUserId(createDto.getUserId());
+        validateCreateDto(createDto);
 
         User createUser = userRepository.save(createDto.toEntity(passwordEncoder.encode(createDto.getPassword())));
         createLinked(createUser);
@@ -76,9 +85,18 @@ public class UserService {
 
     }
 
+    public void validateCreateDto(UserCreateDto createDto) {
+
+        validateUserId(createDto.getUserId());
+
+        if(userRepository.findByEmailAndIsDeletedIsFalse(createDto.getEmail()).isPresent())
+            throw new ResponseException("해당 이메일로 가입된 아이디가 있습니다.", HttpStatus.CONFLICT);
+
+    }
+
     public void validateUserId(String userId) {
-        if(!ObjectUtils.isEmpty(userRepository.findByUserIdAndIsDeletedIsFalse(userId)))
-            throw new ResponseException("already exist user ID : " + userId, HttpStatus.CONFLICT);
+        if(userRepository.findByUserIdAndIsDeletedIsFalse(userId).isPresent())
+            throw new ResponseException("이미 존재하는 ID입니다 : " + userId, HttpStatus.CONFLICT);
     }
 
     private void createLinked(User user) {
@@ -147,20 +165,39 @@ public class UserService {
     }
 
     public User getUser(String userId) {
+        return getUser(userId, false);
+    }
+
+    public User getUser(String userId, boolean login) {
         return userRepository.findByUserIdAndIsDeletedIsFalse(userId)
-                .orElseThrow(() -> new ResponseException("not exist user : " + userId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseException(
+                        login ? "아이디 혹은 비밀번호가 올바르지 않습니다." : "존재하지 않는 사용자입니다 : " + userId
+                        , HttpStatus.NOT_FOUND
+                ));
+    }
+
+    public User getUserByEmail(String email){
+        return userRepository.findByEmailAndIsDeletedIsFalse(email)
+                .orElseThrow(() -> new ResponseException("해당 이메일로 가입된 사용자가 없습니다.", HttpStatus.NOT_FOUND));
     }
 
     /**
      * 아이디 찾기
      *
      * @param email - 사용자 이메일
-     * @return 사용자 아이디
      */
-    public String findUserId(String email){
-        return userRepository.findByEmailAndIsDeletedIsFalse(email)
-                .orElseThrow(() -> new ResponseException("not exist user : " + email, HttpStatus.NOT_FOUND))
-                .getUserId();
+    public void findUserId(String email) {
+        smtpUtil.send(
+                SMTPRequest.builder()
+                        .to(email)
+                        .subject("[Planner] 아이디 안내")
+                        .build()
+                        .findId(getUserByEmail(email).getUserId(), homePath)
+        );
+    }
+
+    public String updateUser(String userId, UserUpdateDto updateDto) {
+        return updateUser(userId, updateDto, true);
     }
 
     /**
@@ -171,11 +208,9 @@ public class UserService {
      * @return 수정된 사용자 아이디
      */
     @Transactional
-    public String updateUser(String userId, UserUpdateDto updateDto) {
+    public String updateUser(String userId, UserUpdateDto updateDto, boolean update) {
 
-        ServiceUtil.validateOwner(userId);
-        if(StringUtils.hasText(updateDto.getPassword()))
-            updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));
+        validateUpdateDto(userId, updateDto, update);
 
         User updateUser = getUser(userId);
         updateUser.update(
@@ -188,6 +223,20 @@ public class UserService {
         updateLinked(updateUser, updateDto);
 
         return userId;
+
+    }
+
+    private void validateUpdateDto(String userId, UserUpdateDto updateDto, boolean update) {
+
+        if(update) ServiceUtil.validateOwner(userId);
+
+        if(StringUtils.hasText(updateDto.getPassword()))
+            updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));
+
+        if(StringUtils.hasText(updateDto.getEmail())) {
+            if(userRepository.findByEmailAndUserIdNotAndIsDeletedIsFalse(updateDto.getEmail(), userId).isPresent())
+                throw new ResponseException("해당 이메일로 가입된 아이디가 있습니다.", HttpStatus.CONFLICT);
+        }
 
     }
 
@@ -215,21 +264,27 @@ public class UserService {
         );
     }
 
-    /**
-     * 비밀번호 재설정
-     *
-     * @param userId - 사용자 아이디
-     */
-    @Transactional
-    public void userPasswordReset(String userId) {
-        ServiceUtil.validateOwner(userId);
+    public void sendPasswordReset(String userId, String key) {
         smtpUtil.send(
                 SMTPRequest.builder()
                     .to(getUser(userId).getEmail())
                     .subject("[Planner] 비밀번호 재설정")
                     .build()
-                    .passwordReset(userId)
+                    .passwordReset(userId, passwordPath, key)
         );
+    }
+
+    @Transactional
+    public void userPasswordReset(PwdResetRequest request) {
+
+        AttachedFile file = getUser(request.getUserId()).getAttachedFile();
+        UserUpdateDto pwdResetDto = UserUpdateDto.builder()
+                .password(request.getPassword())
+                .attcFileId(file != null ? file.getAttcFileId() : null)
+                .build();
+
+        updateUser(request.getUserId(), pwdResetDto, false);
+
     }
 
     /**

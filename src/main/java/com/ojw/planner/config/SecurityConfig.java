@@ -49,6 +49,7 @@ public class SecurityConfig {
                 , "/error"
                 , "/auth/login"
                 , "/auth/refresh"
+                , "/user/auth/**"
         );
     }
 
