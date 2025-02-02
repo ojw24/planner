@@ -31,7 +31,7 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok()
-                .header(authService.generateRefreshCookie(response.getRefreshToken()))
+                .header(HttpHeaders.SET_COOKIE, authService.generateRefreshCookie(response.getRefreshToken()))
                 .body(response);
     }
 

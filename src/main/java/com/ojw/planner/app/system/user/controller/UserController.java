@@ -3,6 +3,7 @@ package com.ojw.planner.app.system.user.controller;
 import com.ojw.planner.app.system.user.domain.dto.UserCreateDto;
 import com.ojw.planner.app.system.user.domain.dto.UserFindDto;
 import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
+import com.ojw.planner.app.system.user.domain.dto.redis.PwdResetRequest;
 import com.ojw.planner.app.system.user.service.UserFacadeService;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.core.response.ApiResponse;
@@ -45,7 +46,7 @@ public class UserController {
     @PreAuthorize("hasRole(T(com.ojw.planner.core.enumeration.system.user.Authority).ADMIN.description)")
     @PageableAsQueryParam
     @Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회(관리자)", tags = "User")
-    @GetMapping(path = "/manage", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/manage/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findUsers(
             @ParameterObject @Valid UserFindDto findDto
             , @Parameter(hidden = true) @PageableDefault(sort = {"regDtm"}, direction = Sort.Direction.DESC) Pageable pageable
@@ -53,13 +54,13 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>(userService.findUsers(findDto, pageable)), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회", tags = "User")
+    @Operation(summary = "사용자 목록 조회", tags = "User")
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findSimpleUsers(@ParameterObject @Valid UserFindDto findDto) {
         return new ResponseEntity<>(new ApiResponse<>(userService.findSimpleUsers(findDto)), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 상세 조회", description = "사용자 상세 조회", tags = "User")
+    @Operation(summary = "사용자 상세 조회", tags = "User")
     @GetMapping(path = "/{userId}")
     public ResponseEntity<?> findUser(
             @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
@@ -67,15 +68,25 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>(userService.findUser(userId)), HttpStatus.OK);
     }
 
-    @Operation(summary = "아이디 찾기", description = "아이디 찾기", tags = "User")
-    @GetMapping(path = "/id")
+    @Operation(summary = "아이디 중복 확인", tags = "User")
+    @GetMapping(path = "/auth/duplicate-check")
+    public ResponseEntity<?> duplicateCheck(
+            @RequestParam(name = "userId") @NotBlank String userId
+    ) {
+        userService.validateUserId(userId);
+        return new ResponseEntity<>(new ApiResponse<>("Duplicate check successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "아이디 찾기", tags = "User")
+    @GetMapping(path = "/auth/find-id")
     public ResponseEntity<?> findUserId(
             @Parameter(name = "email", required = true) @Email @NotBlank String email
     ) {
-        return new ResponseEntity<>(new ApiResponse<>("find user id successful", userService.findUserId(email)), HttpStatus.OK);
+        userService.findUserId(email);
+        return new ResponseEntity<>(new ApiResponse<>("find user id successful"), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 정보 수정", description = "사용자 정보 수정", tags = "User")
+    @Operation(summary = "사용자 정보 수정", tags = "User")
     @PutMapping(path = "/{userId}")
     public ResponseEntity<?> updateUser(
             @RequestBody @Valid UserUpdateDto updateDto
@@ -93,13 +104,22 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>("User ban successful"), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정", tags = "User")
-    @PutMapping(path = "/{userId}/password")
-    public ResponseEntity<?> userPasswordReset(
-            @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
+    @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정 메일 전송", tags = "User")
+    @PutMapping(path = "/auth/find-password")
+    public ResponseEntity<?> sendPasswordReset(
+            @Parameter(name = "userId", required = true) @NotBlank String userId
     ) {
-        userService.userPasswordReset(userId);
+        userFacadeService.sendPasswordReset(userId);
         return new ResponseEntity<>(new ApiResponse<>("User password reset mail is sent"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정", tags = "User")
+    @PutMapping(path = "/auth/password")
+    public ResponseEntity<?> userPasswordReset(
+            @RequestBody @Valid PwdResetRequest request
+    ) {
+        userFacadeService.userPasswordReset(request);
+        return new ResponseEntity<>(new ApiResponse<>("User password reset successful"), HttpStatus.OK);
     }
 
     @Operation(summary = "사용자 삭제", description = "사용자 아이디로 삭제", tags = "User")
@@ -112,7 +132,7 @@ public class UserController {
     }
 
     @Operation(summary = "사용자 알림 목록 조회", tags = "User")
-    @GetMapping(path = "/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/notification/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findUserNotifications() {
         return new ResponseEntity<>(new ApiResponse<>(userFacadeService.findNotifications()), HttpStatus.OK);
     }

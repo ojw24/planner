@@ -29,10 +29,16 @@ spring:
           auth: ${PL_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
           starttls:
             enable: ${PL_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+    path:
+      home: ${PL_MAIL_PATH_HOME}
+      password: ${PL_MAIL_PATH_PASSWORD}
+
   data:
     redis:
       host: ${PL_REDIS_HOST}
       port: ${PL_REDIS_PORT}
+      expire:
+        password: ${PL_REDIS_EXPIRE_PASSWORD}
 
   rabbitmq:
     host: ${PL_MQ_HOST}

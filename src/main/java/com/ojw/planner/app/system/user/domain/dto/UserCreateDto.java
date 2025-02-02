@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class UserCreateDto {
 
     @NotBlank
-    @Schema(description = "사용자아아디")
+    @Schema(description = "사용자 아이디")
     private String userId;
 
     @NotBlank
