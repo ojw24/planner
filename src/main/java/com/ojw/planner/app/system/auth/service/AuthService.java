@@ -1,6 +1,5 @@
 package com.ojw.planner.app.system.auth.service;
 
-import com.ojw.planner.app.system.auth.domain.dto.RefreshDto;
 import com.ojw.planner.app.system.auth.domain.log.dto.LoginRequest;
 import com.ojw.planner.app.system.auth.domain.log.dto.LoginResponse;
 import com.ojw.planner.app.system.auth.domain.redis.token.BannedToken;
@@ -88,11 +87,11 @@ public class AuthService {
     /**
      * 로그아웃
      *
-     * @param jwt        - jwt(access token)
-     * @param refreshDto - 리프레쉬 dto
+     * @param jwt     - jwt(access token)
+     * @param request - http 요청
      */
     @Transactional
-    public void logout(String jwt, RefreshDto refreshDto) {
+    public void logout(String jwt, HttpServletRequest request) {
 
         jwt = JwtUtil.removeType(jwt);
         bannedTokenService.saveToken(
@@ -102,13 +101,12 @@ public class AuthService {
                         .build()
         );
 
-        expire(refreshDto);
+        expire(getRefreshToken(request));
 
     }
 
-    public void expire(RefreshDto refreshDto) {
+    public void expire(String refreshToken) {
 
-        String refreshToken = refreshDto.getRefreshToken();
         checkRefreshToken(refreshToken);
 
         RToken token = tokenService.getTokenByRefresh(refreshToken);
@@ -140,13 +138,13 @@ public class AuthService {
         if(!StringUtils.hasText(refreshToken))
             throw new ResponseException("not exist token in request", HttpStatus.UNAUTHORIZED);
 
+        checkRefreshToken(refreshToken);
         User user = userService.getUser(
                 jwtUtil.getSubject(refreshToken, JwtType.REFRESH)
                         .get(JwtClaim.ID.getType(), JwtClaim.ID.getType().getClass())
         );
 
         tokenService.getTokenByRefresh(refreshToken);
-        checkRefreshToken(refreshToken);
 
         return LoginResponse.builder()
                 .userId(user.getUserId())
