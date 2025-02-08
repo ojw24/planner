@@ -39,9 +39,9 @@ public class AuthController {
     @DeleteMapping(path = "/logout")
     public ResponseEntity<?> logout(
             @Parameter(hidden = true) @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt
-            , @RequestBody @Valid RefreshDto refreshDto
+            , HttpServletRequest request
     ) {
-        authService.logout(jwt, refreshDto);
+        authService.logout(jwt, request);
         return new ResponseEntity<>(new ApiResponse<>("success"),HttpStatus.OK);
     }
 

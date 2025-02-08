@@ -164,6 +164,15 @@ public class UserService {
         return UserDto.of(getUser(userId), true);
     }
 
+    /**
+     * 사용자 상세 조회
+     *
+     * @return 사용자 상세 정보
+     */
+    public UserDto findUser(){
+        return UserDto.of(getUser(CustomUserDetails.getDetails().getUserId()), true);
+    }
+
     public User getUser(String userId) {
         return getUser(userId, false);
     }
@@ -196,6 +205,7 @@ public class UserService {
         );
     }
 
+    @Transactional
     public String updateUser(String userId, UserUpdateDto updateDto) {
         return updateUser(userId, updateDto, true);
     }

@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
             index++;
         }
 
-        return new ResponseEntity<>(new ApiResponse<>(false, builder.toString()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new ApiResponse<>(false, builder.toString()), HttpStatus.UNPROCESSABLE_ENTITY);
 
     }
 

@@ -60,12 +60,18 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>(userService.findSimpleUsers(findDto)), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 상세 조회", tags = "User")
+    @Operation(summary = "사용자 상세 조회", description = "ID로 조회", tags = "User")
     @GetMapping(path = "/{userId}")
     public ResponseEntity<?> findUser(
             @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
     ) {
         return new ResponseEntity<>(new ApiResponse<>(userService.findUser(userId)), HttpStatus.OK);
+    }
+
+    @Operation(summary = "사용자 상세 조회", description = "사용자 직접 조회", tags = "User")
+    @GetMapping(path = "/profile/me")
+    public ResponseEntity<?> findMe() {
+        return new ResponseEntity<>(new ApiResponse<>(userService.findUser()), HttpStatus.OK);
     }
 
     @Operation(summary = "아이디 중복 확인", tags = "User")
