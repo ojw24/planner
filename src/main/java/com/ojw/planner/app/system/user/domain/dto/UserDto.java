@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ojw.planner.app.system.attachedFile.domain.dto.AttachedFileDto;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.setting.UserSetting;
+import com.ojw.planner.core.enumeration.system.user.Authority;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,9 @@ public class UserDto {
     @Schema(description = "정지 여부")
     private Boolean isBanned;
 
+    @Schema(description = "관리자 여부")
+    private Boolean isAdmin;
+
     @Schema(description = "등록일시")
     private LocalDateTime regDtm;
 
@@ -55,6 +59,10 @@ public class UserDto {
                 .name(user.getName())
                 .email(user.getEmail())
                 .isBanned(user.getIsBanned())
+                .isAdmin(
+                        !ObjectUtils.isEmpty(user.getRoles())
+                                && user.getRoles().stream().anyMatch(r -> r.getRole().getAuthority().equals(Authority.ADMIN))
+                )
                 .regDtm(user.getRegDtm())
                 .updtDtm(user.getUpdtDtm())
                 .setting(detail ? UserSettingDto.of(user.getSetting()) : null)
