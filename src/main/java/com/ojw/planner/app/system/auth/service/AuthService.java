@@ -107,11 +107,15 @@ public class AuthService {
 
     public void expire(String refreshToken) {
 
-        checkRefreshToken(refreshToken);
+        if(StringUtils.hasText(refreshToken)) {
 
-        RToken token = tokenService.getTokenByRefresh(refreshToken);
-        token.expire();
-        tokenService.saveToken(token);
+            checkRefreshToken(refreshToken);
+
+            RToken token = tokenService.getTokenByRefresh(refreshToken);
+            token.expire();
+            tokenService.saveToken(token);
+
+        }
 
     }
 
