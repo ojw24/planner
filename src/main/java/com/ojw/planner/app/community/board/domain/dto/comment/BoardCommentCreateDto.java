@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.ObjectUtils;
 
 @Data
 @NoArgsConstructor
@@ -30,6 +31,12 @@ public class BoardCommentCreateDto {
                 .user(user)
                 .parent(parent)
                 .content(this.content)
+                .root(
+                        ObjectUtils.isEmpty(parent)
+                                ? null
+                                : ObjectUtils.isEmpty(parent.getRoot())
+                                    ? parent : parent.getRoot()
+                )
                 .build();
     }
 

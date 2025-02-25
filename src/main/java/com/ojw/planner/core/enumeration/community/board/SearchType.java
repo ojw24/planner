@@ -15,9 +15,8 @@ import static com.ojw.planner.app.community.board.domain.memo.QBoardMemo.boardMe
 @AllArgsConstructor
 public enum SearchType implements EnumMapper {
 
-    ID("id", "작성자 아이디", boardMemo.user.userId::containsIgnoreCase),
-    NAME("name", "작성자 이름", boardMemo.user.name::containsIgnoreCase),
-    TITLE("title", "제목", boardMemo.title::containsIgnoreCase);
+    TITLE("title", "제목", boardMemo.title::containsIgnoreCase),
+    NAME("name", "작성자 이름", boardMemo.user.name::containsIgnoreCase);
 
     private final String code;
 
