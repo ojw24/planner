@@ -52,6 +52,11 @@ public class BoardComment extends BaseEntity {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Comment("최상위 댓글 아이디")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "root_comment_id", updatable = false)
+    private BoardComment root;
+
     @OneToMany(mappedBy = "parent")
     private List<BoardComment> children = new ArrayList<>();
 

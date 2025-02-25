@@ -1,6 +1,8 @@
 package com.ojw.planner.app.community.board.repository.comment.querydsl;
 
 import com.ojw.planner.app.community.board.domain.comment.BoardComment;
+import com.ojw.planner.app.community.board.domain.comment.QBoardComment;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,8 @@ public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryC
     @Override
     public Page<BoardComment> findAll(Long boardMemoId, Pageable pageable) {
 
+        QBoardComment child = new QBoardComment("child");
+
         List<BoardComment> findBoardMemos = queryFactory
                 .selectFrom(boardComment)
                 .join(boardMemo)
@@ -34,8 +38,18 @@ public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryC
                         , boardComment.boardMemo.eq(boardMemo)
                 )
                 .where(
-                        boardComment.isDeleted.isFalse()
-                        , boardComment.parent.isNull()
+                        boardComment.parent.isNull()
+                        , boardComment.isDeleted.isFalse()
+                                .or(
+                                        JPAExpressions
+                                                .selectOne()
+                                                .from(child)
+                                                .where(
+                                                        child.root.eq(boardComment)
+                                                        , child.isDeleted.isFalse()
+                                                )
+                                                .exists()
+                                )
                 )
                 .orderBy(boardComment.regDtm.desc())
                 .offset(pageable.getOffset())
@@ -47,6 +61,9 @@ public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryC
     }
 
     private Long findAllCount(Long boardMemoId) {
+
+        QBoardComment child = new QBoardComment("child");
+
         return queryFactory
                 .select(boardComment.count())
                 .from(boardComment)
@@ -57,8 +74,18 @@ public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryC
                         , boardComment.boardMemo.eq(boardMemo)
                 )
                 .where(
-                        boardComment.isDeleted.isFalse()
-                        , boardComment.parent.isNull()
+                        boardComment.parent.isNull()
+                        , boardComment.isDeleted.isFalse()
+                                .or(
+                                        JPAExpressions
+                                                .selectOne()
+                                                .from(child)
+                                                .where(
+                                                        child.root.eq(boardComment)
+                                                        , child.isDeleted.isFalse()
+                                                )
+                                                .exists()
+                                )
                 )
                 .fetchOne();
     }
