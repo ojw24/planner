@@ -21,16 +21,12 @@ public class FriendDto {
 
     @Schema(description = "친구 사용자 이름")
     private String friendUserName;
-    
-    @Schema(description = "순서")
-    private Double ord;
 
     public static FriendDto of(Friend friend) {
         return FriendDto.builder()
                 .friendId(friend.getFriendId())
                 .friendUserId(friend.getFriend().getUserId())
                 .friendUserName(friend.getFriend().getName())
-                .ord(friend.getOrd())
                 .build();
     }
 

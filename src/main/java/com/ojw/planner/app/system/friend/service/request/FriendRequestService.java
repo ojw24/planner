@@ -29,7 +29,7 @@ public class FriendRequestService {
     ) {
 
         if(friendRequestRepository.findRequestCount(requester.getUserId(), target.getUserId()) > 0)
-            throw new ResponseException("already exist request", HttpStatus.CONFLICT);
+            throw new ResponseException("이미 신청되었습니다.", HttpStatus.CONFLICT);
 
         return friendRequestRepository.save(createDto.toEntity(requester, target));
 

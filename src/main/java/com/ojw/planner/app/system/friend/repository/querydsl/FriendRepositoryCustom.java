@@ -8,6 +8,4 @@ public interface FriendRepositoryCustom {
 
     List<Friend> findAll(String userId);
 
-    Double getLastOrder(String userId);
-
 }

@@ -22,8 +22,9 @@ public class FriendRequestRepositoryCustomImpl implements FriendRequestRepositor
                 .where(
                         friendRequest.requester.userId.eq(userId)
                                 .or(friendRequest.target.userId.eq(userId))
+                        , friendRequest.isDeleted.isFalse()
                 )
-                .orderBy(friendRequest.regDtm.desc())
+                .orderBy(friendRequest.regDtm.asc())
                 .fetch();
     }
 
@@ -35,6 +36,7 @@ public class FriendRequestRepositoryCustomImpl implements FriendRequestRepositor
                 .where(
                         friendRequest.requester.userId.eq(userId).and(friendRequest.target.userId.eq(targetId))
                                 .or(friendRequest.requester.userId.eq(targetId).and(friendRequest.target.userId.eq(userId)))
+                        , friendRequest.isDeleted.isFalse()
                 )
                 .fetchOne();
     }

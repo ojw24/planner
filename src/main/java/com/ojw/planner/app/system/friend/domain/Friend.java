@@ -1,6 +1,5 @@
 package com.ojw.planner.app.system.friend.domain;
 
-import com.ojw.planner.app.system.friend.domain.dto.FriendUpdateDto;
 import com.ojw.planner.app.system.friend.domain.group.FriendGroup;
 import com.ojw.planner.app.system.user.domain.User;
 import jakarta.persistence.*;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.util.ObjectUtils;
 
 @Builder
 @DynamicInsert
@@ -44,16 +42,8 @@ public class Friend {
     @JoinColumn(name = "friend_user_id", nullable = false)
     private User friend;
 
-    @Comment("순서")
-    @Column(name = "ord", nullable = false)
-    private Double ord;
-
-    public void update(FriendUpdateDto updateDto, FriendGroup friendGroup) {
-
-        if(!ObjectUtils.isEmpty(updateDto.getOrd())) this.ord = updateDto.getOrd();
-
+    public void update(FriendGroup friendGroup) {
         this.friendGroup = friendGroup;
-
     }
 
 }

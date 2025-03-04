@@ -18,8 +18,4 @@ public class FriendUpdateDto {
     @Schema(description = "친구 그룹 아이디")
     private Long friendGrpId;
 
-    @Positive
-    @Schema(description = "순서")
-    private Double ord;
-
 }

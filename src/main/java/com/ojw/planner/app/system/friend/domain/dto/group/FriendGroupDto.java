@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,7 @@ public class FriendGroupDto {
                                 ? null
                                 : friendGroup.getFriends().stream()
                                 .map(FriendDto::of)
+                                .sorted(Comparator.comparing(FriendDto::getFriendUserName))
                                 .collect(Collectors.toList())
                 )
                 .build();
