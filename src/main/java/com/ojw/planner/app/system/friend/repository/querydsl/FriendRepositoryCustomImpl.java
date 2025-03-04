@@ -23,21 +23,8 @@ public class FriendRepositoryCustomImpl implements FriendRepositoryCustom {
                         friend1.user.userId.eq(userId)
                         , friend1.friendGroup.isNull()
                 )
-                .orderBy(friend1.ord.asc())
+                .orderBy(friend1.friend.name.asc())
                 .fetch();
-    }
-
-    @Override
-    public Double getLastOrder(String userId) {
-        return queryFactory
-                .select(friend1.ord)
-                .from(friend1)
-                .where(
-                        friend1.user.userId.eq(userId)
-                        , friend1.friendGroup.isNull()
-                )
-                .orderBy(friend1.ord.desc())
-                .fetchFirst();
     }
 
 }

@@ -100,21 +100,11 @@ public class FriendFacadeService {
 
         String userId = CustomUserDetails.getDetails().getUserId();
         FriendGroup friendGroup = friendGroupService.getFriendGroup(friendGrpId, userId);
-        if(cascade) {
-            for (Friend friend : friendGroup.getFriends()) {
+        for (Friend friend : friendGroup.getFriends()) {
+            if(cascade) {
                 friendService.deleteFriend(friend.getFriendId(), userId);
-            }
-        } else {
-
-            Double order = friendService.getLastOrder(CustomUserDetails.getDetails().getUserId());
-            for (Friend friend : friendGroup.getFriends()) {
-                friend.update(
-                        FriendUpdateDto.builder()
-                                .ord(order)
-                                .build()
-                        , null
-                );
-                order++;
+            } else {
+                friend.update(null);
             }
 
         }
@@ -207,21 +197,23 @@ public class FriendFacadeService {
 
         if(approve) {
 
-            friendService.createFriend(
-                    Friend.builder()
-                            .user(request.getRequester())
-                            .friend(request.getTarget())
-                            .ord(friendService.getLastOrder(request.getRequester().getUserId()))
-                            .build()
-            );
+            if(friendService.getFriend(request.getRequester(), request.getTarget()).isEmpty()) {
+                friendService.createFriend(
+                        Friend.builder()
+                                .user(request.getRequester())
+                                .friend(request.getTarget())
+                                .build()
+                );
+            }
 
-            friendService.createFriend(
-                    Friend.builder()
-                            .user(request.getTarget())
-                            .friend(request.getRequester())
-                            .ord(friendService.getLastOrder(request.getTarget().getUserId()))
-                            .build()
-            );
+            if(friendService.getFriend(request.getTarget(), request.getRequester()).isEmpty()) {
+                friendService.createFriend(
+                        Friend.builder()
+                                .user(request.getTarget())
+                                .friend(request.getRequester())
+                                .build()
+                );
+            }
 
         }
 
@@ -235,10 +227,10 @@ public class FriendFacadeService {
 
         String userId = CustomUserDetails.getDetails().getUserId();
         if(!request.getTarget().getUserId().equalsIgnoreCase(userId))
-            throw new ResponseException("Requests not assigned to the current user", HttpStatus.BAD_REQUEST);
+            throw new ResponseException("현재 사용자에게 등록된 신청이 아닙니다.", HttpStatus.BAD_REQUEST);
 
         if(request.getRequester().getUserId().equalsIgnoreCase(userId))
-            throw new ResponseException("Request made by current user", HttpStatus.BAD_REQUEST);
+            throw new ResponseException("현재 사용자가 신청한 요청입니다.", HttpStatus.BAD_REQUEST);
 
     }
 
@@ -263,7 +255,6 @@ public class FriendFacadeService {
         friendService.updateFriend(
                 friendId
                 , userId
-                , updateDto
                 , ObjectUtils.isEmpty(updateDto.getFriendGrpId())
                         ? null
                         : friendGroupService.getFriendGroup(updateDto.getFriendGrpId(), userId)
