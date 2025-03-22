@@ -18,7 +18,6 @@ assignees: ''
   method: GET / POST / PUT / DELETE
 
   parameters: swagger 참고
-
 ```
 
 ### 작업 내용
