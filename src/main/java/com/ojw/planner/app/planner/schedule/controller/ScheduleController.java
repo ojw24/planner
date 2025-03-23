@@ -65,8 +65,18 @@ public class ScheduleController {
         return new ResponseEntity<>(new ApiResponse<>("Schedule delete successful"), HttpStatus.OK);
     }
 
+    @Operation(summary = "일정 공유 삭제", tags = "Schedule")
+    @DeleteMapping(path = "/{scheduleId}/share")
+    public ResponseEntity<?> deleteScheduleShare(
+            @Parameter(name = "scheduleId", required = true) @NotNull @Positive
+            @PathVariable("scheduleId") Long scheduleId
+    ) {
+        scheduleFacadeService.deleteScheduleShare(scheduleId);
+        return new ResponseEntity<>(new ApiResponse<>("Schedule share delete successful"), HttpStatus.OK);
+    }
+
     @Operation(summary = "일정 공유 신청 등록", tags = "Schedule")
-    @PostMapping(path = "/{scheduleId}/share", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/{scheduleId}/share-requset", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createScheduleShareRequest(
             @Parameter(name = "scheduleId", required = true) @NotNull @Positive
             @PathVariable("scheduleId") Long scheduleId
@@ -77,13 +87,13 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 공유 신청 목록 조회", tags = "Schedule")
-    @GetMapping(path = "/share", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/share-requset", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findScheduleShareRequests() {
         return new ResponseEntity<>(new ApiResponse<>(scheduleFacadeService.findScheduleShareRequests()), HttpStatus.OK);
     }
 
     @Operation(summary = "일정 공유 신청 승인", tags = "Schedule")
-    @PutMapping(path = "/{scheduleId}/share/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{scheduleId}/share-requset/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> approveScheduleShareRequest(
             @Parameter(name = "scheduleId", required = true) @NotNull @Positive
             @PathVariable("scheduleId") Long scheduleId
@@ -97,13 +107,13 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 공유 신청 알림 목록 조회", tags = "Schedule")
-    @GetMapping(path = "/share/notification", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/share-requset/notification", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findScheduleShareRequestNotifications() {
         return new ResponseEntity<>(new ApiResponse<>(scheduleFacadeService.findScheduleShareRequestNotifications()), HttpStatus.OK);
     }
 
     @Operation(summary = "일정 공유 신청 알림 확인", tags = "Schedule")
-    @PutMapping(path = "/share/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/share-requset/notification/{notiId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> checkScheduleShareRequestNotification(
             @Parameter(name = "notiId", required = true) @NotNull @Positive
             @PathVariable("notiId") Long notiId
@@ -113,7 +123,7 @@ public class ScheduleController {
     }
 
     @Operation(summary = "일정 공유 신청 알림 삭제", tags = "Schedule")
-    @DeleteMapping(path = "/share/notification/{notiId}")
+    @DeleteMapping(path = "/share-requset/notification/{notiId}")
     public ResponseEntity<?> deleteScheduleShareRequestNotification(
             @Parameter(name = "notiId", required = true) @NotNull @Positive
             @PathVariable("notiId") Long notiId

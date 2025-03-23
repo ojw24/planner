@@ -55,7 +55,7 @@ public class Schedule extends BaseEntity {
     @Column(name = "end_dtm", nullable = false)
     private LocalDateTime endDtm;
 
-    @Comment("일정명")
+    @Comment("장소")
     @Column(name = "location")
     private String location;
 
@@ -67,7 +67,7 @@ public class Schedule extends BaseEntity {
 
         if(!ObjectUtils.isEmpty(updateDto.getEndDtm())) this.endDtm = updateDto.getEndDtm();
 
-        if(StringUtils.hasText(updateDto.getLocation())) this.location = updateDto.getLocation();
+        this.location = updateDto.getLocation();
 
     }
 

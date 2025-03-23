@@ -16,6 +16,6 @@ public class ScheduleFindDto {
 
     @NotNull
     @Schema(description = "조회날짜")
-    private LocalDate localDate;
+    private LocalDate searchDate;
 
 }

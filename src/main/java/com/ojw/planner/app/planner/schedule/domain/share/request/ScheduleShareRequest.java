@@ -1,4 +1,4 @@
-package com.ojw.planner.app.planner.schedule.domain.request;
+package com.ojw.planner.app.planner.schedule.domain.share.request;
 
 import com.ojw.planner.app.planner.schedule.domain.Schedule;
 import com.ojw.planner.app.system.user.domain.User;

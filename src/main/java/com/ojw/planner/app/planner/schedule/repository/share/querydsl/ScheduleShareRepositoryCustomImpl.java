@@ -1,4 +1,4 @@
-package com.ojw.planner.app.planner.schedule.repository.querydsl;
+package com.ojw.planner.app.planner.schedule.repository.share.querydsl;
 
 import com.ojw.planner.app.planner.schedule.domain.Schedule;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleFindDto;
@@ -9,24 +9,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.ojw.planner.app.planner.schedule.domain.QSchedule.schedule;
+import static com.ojw.planner.app.planner.schedule.domain.share.QScheduleShare.scheduleShare;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class ScheduleRepositoryCustomImpl extends ScheduleRepositoryBooleanExpression implements ScheduleRepositoryCustom {
+public class ScheduleShareRepositoryCustomImpl extends ScheduleShareRepositoryBooleanExpression implements ScheduleShareRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
     @Override
     public List<Schedule> findAll(ScheduleFindDto findDto, String userId) {
         return queryFactory
-                .selectFrom(schedule)
+                .select(scheduleShare.schedule)
+                .from(scheduleShare)
                 .where(
-                        schedule.goal.isNull()
+                        scheduleShare.schedule.goal.isNull()
                         , checkDate(findDto.getSearchDate())
-                        , schedule.user.userId.eq(userId)
-                        , schedule.isDeleted.isFalse()
+                        , scheduleShare.user.userId.eq(userId)
+                        , scheduleShare.schedule.isDeleted.isFalse()
                 )
                 .fetch();
     }

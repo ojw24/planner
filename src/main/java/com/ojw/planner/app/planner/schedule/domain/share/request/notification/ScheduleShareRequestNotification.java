@@ -1,6 +1,6 @@
-package com.ojw.planner.app.planner.schedule.domain.request.notification;
+package com.ojw.planner.app.planner.schedule.domain.share.request.notification;
 
-import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
+import com.ojw.planner.app.planner.schedule.domain.share.request.ScheduleShareRequest;
 import com.ojw.planner.core.enumeration.common.NotificationType;
 import com.ojw.planner.core.util.Utils;
 import jakarta.persistence.*;

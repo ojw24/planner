@@ -21,7 +21,7 @@ public class GoalFindDto {
 
     @NotNull
     @Schema(description = "조회날짜")
-    private LocalDate localDate;
+    private LocalDate searchDate;
 
     @Schema(description = "상세 조회 여부")
     private boolean detail;

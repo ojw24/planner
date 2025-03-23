@@ -32,7 +32,6 @@ public class ScheduleCreateDto {
     @Schema(description = "일정 종료일시")
     private LocalDateTime endDtm;
 
-    @NotBlank
     @Schema(description = "장소")
     private String location;
 

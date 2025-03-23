@@ -1,7 +1,7 @@
 package com.ojw.planner.app.system.user.service;
 
 import com.ojw.planner.app.community.board.service.comment.notification.BoardCommentNotificationService;
-import com.ojw.planner.app.planner.schedule.service.request.notification.ScheduleShareRequestNotificationService;
+import com.ojw.planner.app.planner.schedule.service.share.request.notification.ScheduleShareRequestNotificationService;
 import com.ojw.planner.app.system.friend.service.request.notification.FriendRequestNotificationService;
 import com.ojw.planner.app.system.user.domain.dto.redis.PwdResetRequest;
 import com.ojw.planner.app.system.user.domain.redis.PwdResetKey;
@@ -70,7 +70,7 @@ public class UserFacadeService {
                         .build()
         );
 
-        userService.sendPasswordReset(userId, key);
+        userService.sendPasswordReset(userId, key, passwordExpire);
 
     }
 

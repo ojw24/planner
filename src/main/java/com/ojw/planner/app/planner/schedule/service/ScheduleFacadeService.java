@@ -8,16 +8,19 @@ import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleUpdateDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.request.ScheduleShareRequestCreateDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.request.ScheduleShareRequestDto;
 import com.ojw.planner.app.planner.schedule.domain.dto.request.notification.ScheduleShareRequestNotificationDto;
-import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
-import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
-import com.ojw.planner.app.planner.schedule.service.request.ScheduleShareRequestService;
-import com.ojw.planner.app.planner.schedule.service.request.notification.ScheduleShareRequestNotificationService;
+import com.ojw.planner.app.planner.schedule.domain.share.ScheduleShare;
+import com.ojw.planner.app.planner.schedule.domain.share.request.ScheduleShareRequest;
+import com.ojw.planner.app.planner.schedule.domain.share.request.notification.ScheduleShareRequestNotification;
+import com.ojw.planner.app.planner.schedule.service.share.ScheduleShareService;
+import com.ojw.planner.app.planner.schedule.service.share.request.ScheduleShareRequestService;
+import com.ojw.planner.app.planner.schedule.service.share.request.notification.ScheduleShareRequestNotificationService;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
 import com.ojw.planner.core.enumeration.common.NotificationType;
 import com.ojw.planner.core.enumeration.inner.ScheduleRoutes;
+import com.ojw.planner.core.util.ServiceUtil;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -35,6 +38,8 @@ import java.util.stream.Collectors;
 public class ScheduleFacadeService {
 
     private final ScheduleService scheduleService;
+
+    private final ScheduleShareService scheduleShareService;
 
     private final ScheduleShareRequestService scheduleShareRequestService;
 
@@ -68,10 +73,13 @@ public class ScheduleFacadeService {
      * @return 일정 정보
      */
     public List<ScheduleDto> findSchedules(ScheduleFindDto findDto) {
-        return scheduleService.findSchedules(
-                findDto
-                , CustomUserDetails.getDetails().getUserId()
-        );
+
+        String userId = CustomUserDetails.getDetails().getUserId();
+        List<ScheduleDto> schedules = scheduleService.findSchedules(findDto, userId);
+        schedules.addAll(scheduleShareService.findSchedules(findDto, userId));
+
+        return schedules;
+
     }
 
     /**
@@ -88,6 +96,7 @@ public class ScheduleFacadeService {
         if(updateSchedule.getGoal() != null)
             throw new ResponseException("This is not a normal request", HttpStatus.BAD_REQUEST);
 
+        ServiceUtil.validateOwner(updateSchedule.getUser().getUserId());
         scheduleService.validateUpdateDto(updateDto, updateSchedule);
         updateSchedule.update(updateDto);
 
@@ -107,6 +116,7 @@ public class ScheduleFacadeService {
         if(deleteSchedule.getGoal() != null)
             throw new ResponseException("This is not a normal request", HttpStatus.BAD_REQUEST);
 
+        ServiceUtil.validateOwner(deleteSchedule.getUser().getUserId());
         deleteSchedule.delete();
 
     }
@@ -129,7 +139,8 @@ public class ScheduleFacadeService {
 
         List<ScheduleShareRequest> requests = new ArrayList<>();
         for (String targetId : createDto.getTargetIds()) {
-            if(!scheduleShareRequestService.checkRequest(scheduleId, targetId)) {
+            if(!scheduleShareRequestService.checkRequest(scheduleId, targetId)
+                    && !scheduleShareService.checkSchedule(scheduleId, targetId)) {
                 requests.add(
                         ScheduleShareRequest.builder()
                                 .schedule(schedule)
@@ -142,7 +153,6 @@ public class ScheduleFacadeService {
 
         scheduleShareRequestService.createScheduleShareRequests(requests);
         createNotifications(requests, NotificationType.REQUEST);
-        //TODO : 대상자들에게 알림 보내기
 
     }
 
@@ -214,22 +224,15 @@ public class ScheduleFacadeService {
         ScheduleShareRequest request = scheduleShareRequestService.getScheduleShareRequest(reqId, userId);
 
         if(approve) {
-
-            scheduleService.createSchedule(
-                    ScheduleCreateDto.builder()
-                            .name(request.getSchedule().getName())
-                            .startDtm(request.getSchedule().getStartDtm())
-                            .endDtm(request.getSchedule().getEndDtm())
-                            .location(request.getSchedule().getLocation())
+            scheduleShareService.createScheduleShare(
+                    ScheduleShare.builder()
+                            .schedule(request.getSchedule())
+                            .user(request.getTarget())
                             .build()
-                    , null
-                    , request.getTarget()
             );
-
         }
 
         createNotification(request, approve ? NotificationType.APPROVE : NotificationType.REJECT);
-
         scheduleShareRequestService.deleteScheduleShareRequest(reqId);
 
     }
@@ -285,6 +288,19 @@ public class ScheduleFacadeService {
         ScheduleShareRequestNotification notification = notificationService.getNotification(notiId);
         validateNotification(notification);
         notificationService.deleteNotification(notiId);
+
+    }
+
+    /**
+     * 일정 공유 삭제
+     *
+     * @param scheduleId - 일정 아이디
+     */
+    @Transactional
+    public void deleteScheduleShare(Long scheduleId) {
+
+        String userId = CustomUserDetails.getDetails().getUserId();
+        scheduleShareService.deleteScheduleShare(scheduleId, userId);
 
     }
 

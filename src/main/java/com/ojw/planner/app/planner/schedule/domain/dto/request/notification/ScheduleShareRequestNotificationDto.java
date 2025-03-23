@@ -1,7 +1,7 @@
 package com.ojw.planner.app.planner.schedule.domain.dto.request.notification;
 
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
-import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
+import com.ojw.planner.app.planner.schedule.domain.share.request.notification.ScheduleShareRequestNotification;
 import com.ojw.planner.core.domain.Notification;
 import com.ojw.planner.core.enumeration.common.NotificationDiv;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;

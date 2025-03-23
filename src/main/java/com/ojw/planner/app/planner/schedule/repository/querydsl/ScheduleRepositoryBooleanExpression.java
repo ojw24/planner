@@ -8,9 +8,14 @@ import static com.ojw.planner.app.planner.schedule.domain.QSchedule.schedule;
 
 public class ScheduleRepositoryBooleanExpression {
 
-    protected BooleanExpression checkDate(LocalDate localDate) {
-        return schedule.startDtm.goe(localDate.withDayOfMonth(1).atStartOfDay())
-                .and(schedule.startDtm.lt(localDate.withDayOfMonth(localDate.lengthOfMonth()).plusDays(1).atStartOfDay()));
+    protected BooleanExpression checkDate(LocalDate searchDate) {
+
+        LocalDate base = searchDate.withDayOfMonth(1);
+        base = base.minusDays(base.getDayOfWeek().getValue());
+
+        return schedule.startDtm.goe(base.atStartOfDay())
+                .and(schedule.startDtm.lt(base.plusDays(42).atStartOfDay()));
+
     }
 
 }

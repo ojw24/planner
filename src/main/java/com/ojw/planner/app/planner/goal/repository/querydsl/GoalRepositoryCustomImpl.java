@@ -38,7 +38,7 @@ public class GoalRepositoryCustomImpl extends GoalRepositoryBooleanExpression im
                 .selectFrom(goal)
                 .where(
                         goal.goalType.eq(findDto.getGoalType())
-                        , findDto.getGoalType().checkPeriod(new DatePeriod(findDto.getLocalDate(), findDto.getLocalDate()))
+                        , findDto.getGoalType().checkPeriod(new DatePeriod(findDto.getSearchDate(), findDto.getSearchDate()))
                         , goal.user.userId.eq(userId)
                         , goal.isDeleted.isFalse()
                 ).fetchOne();
