@@ -274,13 +274,13 @@ public class UserService {
         );
     }
 
-    public void sendPasswordReset(String userId, String key) {
+    public void sendPasswordReset(String userId, String key, Long passwordExpire) {
         smtpUtil.send(
                 SMTPRequest.builder()
                     .to(getUser(userId).getEmail())
                     .subject("[Planner] 비밀번호 재설정")
                     .build()
-                    .passwordReset(userId, passwordPath, key)
+                    .passwordReset(userId, passwordPath, key, passwordExpire)
         );
     }
 

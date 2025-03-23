@@ -115,7 +115,7 @@ public class GoalService {
     private void validateAndSetDate(GoalCreateDto createDto, String userId) {
 
         if(createDto.getStartDate().isAfter(createDto.getEndDate()))
-            throw new ResponseException("end date must be after start date", HttpStatus.BAD_REQUEST);
+            throw new ResponseException("종료일은 시작일 이후여야 합니다.", HttpStatus.BAD_REQUEST);
 
         switch (createDto.getGoalType()) {
 
@@ -137,7 +137,7 @@ public class GoalService {
         }
 
         if(checkDate(createDto.getGoalType(), createDto.getStartDate(), createDto.getEndDate(), userId))
-            throw new ResponseException("date is duplicate", HttpStatus.BAD_REQUEST);
+            throw new ResponseException("해당 기간에 중복된 목표가 있습니다.", HttpStatus.BAD_REQUEST);
 
     }
 
@@ -146,6 +146,8 @@ public class GoalService {
     }
 
     private boolean checkDate(GoalType goalType, LocalDate startDate, LocalDate endDate, String userId, Long goalId) {
+        System.out.println("start : " + startDate);
+        System.out.println("endDate : " + endDate);
         return goalType != GoalType.DAY
                 && goalRepository.checkDuplicate(goalType, new DatePeriod(startDate, endDate), userId, goalId) > 0;
     }
@@ -187,7 +189,7 @@ public class GoalService {
                 ? goal.getEndDate() : updateDto.getEndDate();
 
         if(startDate.isAfter(endDate))
-            throw new ResponseException("end date must be after start date", HttpStatus.BAD_REQUEST);
+            throw new ResponseException("종료일은 시작일 이후여야 합니다.", HttpStatus.BAD_REQUEST);
 
         switch (goal.getGoalType()) {
 
@@ -210,7 +212,7 @@ public class GoalService {
                 ? goal.getEndDate() : updateDto.getEndDate();
 
         if(checkDate(goal.getGoalType(), startDate, endDate, userId, goal.getGoalId()))
-            throw new ResponseException("date is duplicate", HttpStatus.BAD_REQUEST);
+            throw new ResponseException("해당 기간에 중복된 목표가 있습니다.", HttpStatus.BAD_REQUEST);
 
     }
 

@@ -1,7 +1,7 @@
-package com.ojw.planner.app.planner.schedule.service.request;
+package com.ojw.planner.app.planner.schedule.service.share.request;
 
-import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
-import com.ojw.planner.app.planner.schedule.repository.request.ScheduleShareRequestRepository;
+import com.ojw.planner.app.planner.schedule.domain.share.request.ScheduleShareRequest;
+import com.ojw.planner.app.planner.schedule.repository.share.request.ScheduleShareRequestRepository;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,11 +23,11 @@ public class ScheduleShareRequestService {
     }
 
     public List<ScheduleShareRequest> getScheduleShareRequests(String userId) {
-        return shareRequestRepository.findAllByTargetUserId(userId);
+        return shareRequestRepository.findAllByTargetUserIdAndIsDeletedIsFalse(userId);
     }
 
     public ScheduleShareRequest getScheduleShareRequest(Long reqId, String userId) {
-        return shareRequestRepository.findByReqIdAndTargetUserId(reqId, userId)
+        return shareRequestRepository.findByReqIdAndTargetUserIdAndIsDeletedIsFalse(reqId, userId)
                 .orElseThrow(() -> new ResponseException("not exist request", HttpStatus.NOT_FOUND));
     }
 
@@ -37,9 +37,10 @@ public class ScheduleShareRequestService {
     }
 
     public boolean checkRequest(Long scheduleId, String userId) {
-        return shareRequestRepository.existsByScheduleScheduleIdAndTargetUserId(scheduleId, userId);
+        return shareRequestRepository.existsByScheduleScheduleIdAndTargetUserIdAndIsDeletedIsFalse(scheduleId, userId);
     }
 
+    @Transactional
     public void deleteScheduleShareRequest(Long reqId) {
         getScheduleShareRequest(reqId).delete();
     }

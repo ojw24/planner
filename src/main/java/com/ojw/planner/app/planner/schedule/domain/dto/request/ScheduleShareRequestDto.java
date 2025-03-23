@@ -1,7 +1,7 @@
 package com.ojw.planner.app.planner.schedule.domain.dto.request;
 
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
-import com.ojw.planner.app.planner.schedule.domain.request.ScheduleShareRequest;
+import com.ojw.planner.app.planner.schedule.domain.share.request.ScheduleShareRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

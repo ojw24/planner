@@ -1,6 +1,6 @@
-package com.ojw.planner.app.planner.schedule.repository.request.notification.querydsl;
+package com.ojw.planner.app.planner.schedule.repository.share.request.notification.querydsl;
 
-import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
+import com.ojw.planner.app.planner.schedule.domain.share.request.notification.ScheduleShareRequestNotification;
 import com.ojw.planner.core.enumeration.common.NotificationType;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.ojw.planner.app.planner.schedule.domain.request.QScheduleShareRequest.scheduleShareRequest;
-import static com.ojw.planner.app.planner.schedule.domain.request.notification.QScheduleShareRequestNotification.scheduleShareRequestNotification;
+import static com.ojw.planner.app.planner.schedule.domain.share.request.QScheduleShareRequest.scheduleShareRequest;
+import static com.ojw.planner.app.planner.schedule.domain.share.request.notification.QScheduleShareRequestNotification.scheduleShareRequestNotification;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor

@@ -42,7 +42,14 @@ public class ScheduleDto {
     @Schema(description = "수정일시")
     private LocalDateTime updtDtm;
 
+    @Schema(description = "공유 여부")
+    private boolean shared;
+
     public static ScheduleDto of(Schedule schedule) {
+        return of(schedule, false);
+    }
+
+    public static ScheduleDto of(Schedule schedule, boolean shared) {
         return ScheduleDto.builder()
                 .scheduleId(schedule.getScheduleId())
                 .userId(schedule.getUser().getUserId())
@@ -53,6 +60,7 @@ public class ScheduleDto {
                 .location(schedule.getLocation())
                 .regDtm(schedule.getRegDtm())
                 .updtDtm(schedule.getUpdtDtm())
+                .shared(shared)
                 .build();
     }
     

@@ -71,7 +71,7 @@ public class ScheduleService {
 
     public Schedule getSchedule(Long scheduleId, String userId) {
         return scheduleRepository.findByScheduleIdAndUserUserIdAndIsDeletedIsFalse(scheduleId, userId)
-                .orElseThrow(() -> new ResponseException("not exist schedule", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new ResponseException("not exist schedule", HttpStatus.NOT_FOUND));
     }
 
     @Transactional

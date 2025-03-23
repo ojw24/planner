@@ -1,8 +1,8 @@
-package com.ojw.planner.app.planner.schedule.service.request.notification;
+package com.ojw.planner.app.planner.schedule.service.share.request.notification;
 
 import com.ojw.planner.app.planner.schedule.domain.dto.request.notification.ScheduleShareRequestNotificationDto;
-import com.ojw.planner.app.planner.schedule.domain.request.notification.ScheduleShareRequestNotification;
-import com.ojw.planner.app.planner.schedule.repository.request.notification.ScheduleShareRequestNotificationRepository;
+import com.ojw.planner.app.planner.schedule.domain.share.request.notification.ScheduleShareRequestNotification;
+import com.ojw.planner.app.planner.schedule.repository.share.request.notification.ScheduleShareRequestNotificationRepository;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
