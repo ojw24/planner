@@ -109,7 +109,7 @@ public class GoalFacadeService {
         Goal updateGoal = goalService.getGoal(goalId, userId);
         goalService.validateAndSetDate(updateGoal, updateDto, userId);
         updateGoal.update(updateDto);
-        goalService.validateParent(updateGoal);
+        goalService.validateParent(updateGoal, updateDto);
 
         updateSchedule(updateDto, userId, updateGoal);
 
