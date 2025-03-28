@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -58,27 +56,15 @@ public class GoalService {
 
             }
 
-            case WEEK -> {
+            case DAY -> {
 
                 checkParent(parent, user);
 
                 if(!parent.getGoalType().equals(GoalType.MONTH))
                     throw new ResponseException("parent's goal type is not month", HttpStatus.BAD_REQUEST);
 
-                if(createDto.getStartDate().getMonth() != parent.getStartDate().getMonth())
-                    throw new ResponseException("not the current month's week", HttpStatus.BAD_REQUEST);
-
-            }
-
-            case DAY -> {
-
-                checkParent(parent, user);
-
-                if(!parent.getGoalType().equals(GoalType.WEEK))
-                    throw new ResponseException("parent's goal type is not week", HttpStatus.BAD_REQUEST);
-
                 if(!validateDay(createDto, parent))
-                    throw new ResponseException("not the current week's day", HttpStatus.BAD_REQUEST);
+                    throw new ResponseException("not the current month's day", HttpStatus.BAD_REQUEST);
 
             }
 
@@ -109,7 +95,6 @@ public class GoalService {
      * 목표 타입
      * -> 연 : 시작일의 해당 년도 1일 ~ 마지막일로 기간 세팅
      * -> 월 : 시작일의 해당 월 1일 ~ 마지막일로 기간 세팅
-     * -> 주 : 시작일의 해당 주 월요일 ~ 종료일의 해당 주 일요일로 기간 세팅
      * -> 일 : 그대로 세팅
      */
     private void validateAndSetDate(GoalCreateDto createDto, String userId) {
@@ -129,11 +114,6 @@ public class GoalService {
                 createDto.setEndDate(createDto.getStartDate().withDayOfMonth(createDto.getStartDate().lengthOfMonth()));
             }
 
-            case WEEK -> {
-                createDto.setStartDate(createDto.getStartDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)));
-                createDto.setEndDate(createDto.getEndDate().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
-            }
-
         }
 
         if(checkDate(createDto.getGoalType(), createDto.getStartDate(), createDto.getEndDate(), userId))
@@ -146,8 +126,6 @@ public class GoalService {
     }
 
     private boolean checkDate(GoalType goalType, LocalDate startDate, LocalDate endDate, String userId, Long goalId) {
-        System.out.println("start : " + startDate);
-        System.out.println("endDate : " + endDate);
         return goalType != GoalType.DAY
                 && goalRepository.checkDuplicate(goalType, new DatePeriod(startDate, endDate), userId, goalId) > 0;
     }
@@ -158,7 +136,7 @@ public class GoalService {
 
     public Goal getGoal(Long goalId, String userId) {
         return goalRepository.findByGoalIdAndUserUserIdAndIsDeletedIsFalse(goalId, userId)
-                .orElseThrow(() -> new ResponseException("not exist goal", HttpStatus.BAD_REQUEST));
+                .orElseThrow(() -> new ResponseException("not exist goal", HttpStatus.NOT_FOUND));
     }
 
     public GoalDto findGoalBy(GoalFindDto findDto, String userId) {
@@ -198,11 +176,6 @@ public class GoalService {
                 updateDto.setEndDate(null);
             }
 
-            case WEEK -> {
-                updateDto.setStartDate(startDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)));
-                updateDto.setEndDate(endDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)));
-            }
-
         }
 
         startDate = updateDto.getStartDate() == null
@@ -216,22 +189,32 @@ public class GoalService {
 
     }
 
-    public void validateParent(Goal goal) {
+    @Transactional
+    public void validateParent(Goal goal, GoalUpdateDto updateDto) {
 
         switch (goal.getGoalType()) {
-
-            case WEEK -> {
-
-                if(goal.getStartDate().getMonth() != goal.getParent().getStartDate().getMonth())
-                    throw new ResponseException("not the current month's week", HttpStatus.BAD_REQUEST);
-
-            }
 
             case DAY -> {
 
                 if(!validateDay(goal))
-                    throw new ResponseException("not the current week's day", HttpStatus.BAD_REQUEST);
+                    throw new ResponseException("not the current month's day", HttpStatus.BAD_REQUEST);
 
+            }
+
+        }
+
+        Goal parent = goal.getParent();
+        if(parent != null && updateDto.getIsArchive() != null) {
+
+            if(updateDto.getIsArchive()) {
+
+                boolean achieve = goal.getParent().getChildren().stream().allMatch(Goal::getIsAchieve);
+                if(achieve) {
+                    parent.update(GoalUpdateDto.builder().isArchive(true).build());
+                }
+
+            } else if(parent.getIsAchieve()) {
+                parent.update(GoalUpdateDto.builder().isArchive(false).build());
             }
 
         }

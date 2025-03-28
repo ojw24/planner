@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ojw.planner.app.planner.goal.domain.Goal;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
+import com.ojw.planner.core.enumeration.planner.goal.GoalType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import org.springframework.util.ObjectUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Builder
@@ -86,6 +88,7 @@ public class GoalDto {
                                 ? ObjectUtils.isEmpty(goal.getChildren())
                                     ? null
                                     : goal.getChildren().stream()
+                                        .filter(c -> !c.getIsDeleted())
                                         .map(c -> GoalDto.of(c, true))
                                         .collect(Collectors.toList())
                                 : null
@@ -101,11 +104,42 @@ public class GoalDto {
     private static Integer getAchieve(Goal goal) {
         return ObjectUtils.isEmpty(goal.getChildren())
                 ? 0
-                : Math.round(
-                        goal.getChildren().stream().filter(Goal::getIsAchieve).toList().size()
-                            / (float)goal.getChildren().size()
-                            * 100
-        );
+                : goal.getGoalType().equals(GoalType.YEAR)
+                    ? getYearAchieve(goal)
+                    : Math.round(
+                        goal.getChildren().stream()
+                                .filter(c -> !c.getIsDeleted())
+                                .filter(Goal::getIsAchieve)
+                                .toList()
+                                .size()
+                        / (float)goal.getChildren().stream().filter(c -> !c.getIsDeleted()).toList().size()
+                        * 100
+                    );
+    }
+
+    private static Integer getYearAchieve(Goal goal) {
+
+        AtomicInteger achieve = new AtomicInteger(0);
+        goal.getChildren().forEach(c -> {
+            if(!c.getIsDeleted()) {
+                achieve.set(
+                        achieve.get()
+                                + Math.round(
+                                c.getChildren().stream()
+                                        .filter(cc -> !cc.getIsDeleted())
+                                        .filter(Goal::getIsAchieve)
+                                        .toList()
+                                        .size()
+                                        / (float)c.getChildren().stream().filter(cc -> !cc.getIsDeleted()).toList().size()
+                                        * 100
+                                        / goal.getChildren().stream().filter(cc -> !cc.getIsDeleted()).toList().size()
+                        )
+                );
+            }
+        });
+
+        return achieve.get();
+
     }
 
 }

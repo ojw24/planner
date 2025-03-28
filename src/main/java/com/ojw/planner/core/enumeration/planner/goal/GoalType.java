@@ -30,16 +30,7 @@ public enum GoalType implements EnumMapper {
             , period -> goal.startDate.eq(period.getStartDate().withDayOfMonth(1))
                     .and(goal.endDate.eq(period.getStartDate().withDayOfMonth(period.getStartDate().lengthOfMonth())))
     ),
-    WEEK(
-            "goal_type_003"
-            ,"week"
-            , period -> goal.startDate.eq(period.getStartDate())
-                    .or(goal.endDate.eq(period.getEndDate()))
-                    .or(goal.startDate.after(period.getStartDate()).and(goal.startDate.before(period.getEndDate())))
-                    .or(goal.startDate.before(period.getStartDate()).and(goal.endDate.after(period.getStartDate())))
-
-    ),
-    DAY("goal_type_004","day", null);
+    DAY("goal_type_003","day", null);
 
     private final String code;
 
