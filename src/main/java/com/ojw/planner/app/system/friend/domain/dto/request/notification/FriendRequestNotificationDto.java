@@ -52,6 +52,7 @@ public class FriendRequestNotificationDto implements Notification {
         return FriendRequestNotificationDto.builder()
                 .notiId(notification.getNotiId())
                 .friendReqId(notification.getRequest().getFriendReqId())
+                .requesterId(notification.getRequest().getRequester().getUserId())
                 .requesterName(notification.getRequest().getRequester().getName())
                 .targetId(notification.getRequest().getTarget().getUserId())
                 .targetName(notification.getRequest().getTarget().getName())
@@ -61,7 +62,7 @@ public class FriendRequestNotificationDto implements Notification {
                                 , notification.getNotiType().getCode()
                         )
                 )
-                .isChecked(notification.getIsChecked())
+                .isChecked(notification.getIsChecked() != null ? notification.getIsChecked() : false)
                 .regDtm(notification.getRegDtm())
                 .notification(NotificationDiv.FRIEND_REQUEST)
                 .build();

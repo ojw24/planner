@@ -17,7 +17,7 @@ import com.ojw.planner.app.community.board.service.memo.redis.CachedBoardMemoSer
 import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
-import com.ojw.planner.core.enumeration.inner.BoardRoutes;
+import com.ojw.planner.core.util.RabbitMqUtil;
 import com.ojw.planner.core.util.ServiceUtil;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +51,8 @@ public class BoardFacadeService {
     private final RabbitTemplate rabbitTemplate;
 
     private final RabbitMqConfigProperties rabbitMqProp;
+
+    private final RabbitMqUtil rabbitMqUtil;
 
     /**
      * 게시글 등록
@@ -177,20 +179,17 @@ public class BoardFacadeService {
 
     private boolean checkUserSetting(BoardComment comment) {
         return ObjectUtils.isEmpty(comment.getParent())
-                ? comment.getBoardMemo().getUser().getSetting().getIsSchShareReqNoti()
-                : comment.getParent().getUser().getSetting().getIsSchShareReqNoti();
+                ? comment.getBoardMemo().getUser().getSetting().getIsCommentNoti()
+                : comment.getParent().getUser().getSetting().getIsCommentNoti();
     }
 
-    private void sendRequestToMq(
-            BoardComment comment
-            , BoardCommentNotification notification
-    ) {
+    private void sendRequestToMq(BoardComment comment, BoardCommentNotification notification) {
         rabbitTemplate.convertAndSend(
-                rabbitMqProp.getBoard().getExchange()
-                , rabbitMqProp.getBoard().getRoutes().get(BoardRoutes.COMMENT.getKey()).getRouting() +
+                rabbitMqProp.getBoard().getExchange() +
                         (ObjectUtils.isEmpty(comment.getParent())
                                 ? comment.getBoardMemo().getUser().getUserId()
                                 : comment.getParent().getUser().getUserId())
+                , ""
                 , BoardCommentNotificationDto.of(notification)
         );
     }
@@ -299,6 +298,18 @@ public class BoardFacadeService {
         validateNotification(notification);
         notificationService.deleteNotification(notiId);
 
+    }
+
+    /**
+     * MQ 바인딩
+     *
+     * @param uuid - uuid(queue name)
+     */
+    public void declareBinding(String uuid) {
+        rabbitMqUtil.declareBinding(
+                rabbitMqProp.getBoard().getExchange() + CustomUserDetails.getDetails().getUserId()
+                , uuid
+        );
     }
 
 }

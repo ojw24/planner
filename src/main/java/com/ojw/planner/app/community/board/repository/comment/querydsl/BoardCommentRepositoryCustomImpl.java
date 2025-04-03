@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +21,7 @@ import static com.ojw.planner.app.community.board.domain.memo.QBoardMemo.boardMe
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Repository
-public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryCustom{
+public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -51,7 +52,7 @@ public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryC
                                                 .exists()
                                 )
                 )
-                .orderBy(boardComment.regDtm.desc())
+                .orderBy(boardComment.regDtm.desc(), boardComment.boardCommentId.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -105,6 +106,38 @@ public class BoardCommentRepositoryCustomImpl implements BoardCommentRepositoryC
                         , boardComment.isDeleted.isFalse()
                 )
                 .fetchOne());
+    }
+
+    @Override
+    public Long getOrder(Long boardMemoId, Long boardCommentId, LocalDateTime regDtm) {
+
+        QBoardComment child = new QBoardComment("child");
+
+        return queryFactory
+                .select(boardComment.count())
+                .from(boardComment)
+                .where(
+                        boardComment.boardMemo.boardMemoId.eq(boardMemoId)
+                        , boardComment.parent.isNull()
+                        , boardComment.isDeleted.isFalse()
+                                .or(
+                                        JPAExpressions
+                                                .selectOne()
+                                                .from(child)
+                                                .where(
+                                                        child.root.eq(boardComment)
+                                                        , child.isDeleted.isFalse()
+                                                )
+                                                .exists()
+                                )
+                        , boardComment.regDtm.gt(regDtm).or(
+                                boardComment.regDtm.eq(regDtm).and(
+                                        boardComment.boardCommentId.gt(boardCommentId)
+                                )
+                        )
+                )
+                .fetchOne();
+
     }
 
 }
