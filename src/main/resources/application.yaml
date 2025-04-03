@@ -43,8 +43,10 @@ spring:
   rabbitmq:
     host: ${PL_MQ_HOST}
     port: ${PL_MQ_PORT}
+    stomp: ${PL_MQ_STOMP}
     username: ${PL_MQ_USER}
     password: ${PL_MQ_PASSWORD}
+    dynamic: true
 
 rabbitmq:
   friend:

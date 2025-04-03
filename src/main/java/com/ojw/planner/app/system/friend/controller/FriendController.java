@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -144,6 +145,16 @@ public class FriendController {
     ) {
         friendFacadeService.deleteFriendRequestNotification(notiId);
         return new ResponseEntity<>(new ApiResponse<>("Friend request notification delete successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "친구 MQ 바인딩", tags = "Board")
+    @PostMapping(path = "/mq", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createBoardMQ(@RequestParam(name = "uuid") @NotBlank String uuid) {
+        friendFacadeService.declareBinding(uuid);
+        return new ResponseEntity<>(
+                new ApiResponse<>("Friend mq creation successful")
+                , HttpStatus.CREATED
+        );
     }
 
 }

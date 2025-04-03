@@ -19,7 +19,7 @@ import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
 import com.ojw.planner.core.enumeration.common.NotificationType;
-import com.ojw.planner.core.enumeration.inner.ScheduleRoutes;
+import com.ojw.planner.core.util.RabbitMqUtil;
 import com.ojw.planner.core.util.ServiceUtil;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +50,8 @@ public class ScheduleFacadeService {
     private final RabbitTemplate rabbitTemplate;
 
     private final RabbitMqConfigProperties rabbitMqProp;
+
+    private final RabbitMqUtil rabbitMqUtil;
 
     /**
      * 일정 등록
@@ -197,16 +199,13 @@ public class ScheduleFacadeService {
                 : request.getRequester().getSetting().getIsSchShareReqNoti();
     }
 
-    private void sendRequestToMq(
-            ScheduleShareRequest request
-            , ScheduleShareRequestNotification notification
-    ) {
+    private void sendRequestToMq(ScheduleShareRequest request, ScheduleShareRequestNotification notification) {
         rabbitTemplate.convertAndSend(
-                rabbitMqProp.getSchedule().getExchange()
-                , rabbitMqProp.getSchedule().getRoutes().get(ScheduleRoutes.REQUEST.getKey()).getRouting() +
+                rabbitMqProp.getSchedule().getExchange() +
                         (notification.getNotiType().equals(NotificationType.REQUEST)
                                 ? request.getTarget().getUserId()
                                 : request.getRequester().getUserId())
+                , ""
                 , ScheduleShareRequestNotificationDto.of(notification)
         );
     }
@@ -302,6 +301,18 @@ public class ScheduleFacadeService {
         String userId = CustomUserDetails.getDetails().getUserId();
         scheduleShareService.deleteScheduleShare(scheduleId, userId);
 
+    }
+
+    /**
+     * MQ 바인딩
+     *
+     * @param uuid - uuid(queue name)
+     */
+    public void declareBinding(String uuid) {
+        rabbitMqUtil.declareBinding(
+                rabbitMqProp.getSchedule().getExchange() + CustomUserDetails.getDetails().getUserId()
+                , uuid
+        );
     }
 
 }

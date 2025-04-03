@@ -19,7 +19,7 @@ import com.ojw.planner.app.system.user.domain.security.CustomUserDetails;
 import com.ojw.planner.app.system.user.service.UserService;
 import com.ojw.planner.config.RabbitMqConfigProperties;
 import com.ojw.planner.core.enumeration.common.NotificationType;
-import com.ojw.planner.core.enumeration.inner.FriendRoutes;
+import com.ojw.planner.core.util.RabbitMqUtil;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -48,6 +48,8 @@ public class FriendFacadeService {
     private final RabbitTemplate rabbitTemplate;
 
     private final RabbitMqConfigProperties rabbitMqProp;
+
+    private final RabbitMqUtil rabbitMqUtil;
 
     /**
      * 친구 그룹 등록
@@ -160,16 +162,13 @@ public class FriendFacadeService {
                 : request.getRequester().getSetting().getIsFriendReqNoti();
     }
 
-    private void sendRequestToMq(
-            FriendRequest request
-            , FriendRequestNotification notification
-    ) {
+    private void sendRequestToMq(FriendRequest request, FriendRequestNotification notification) {
         rabbitTemplate.convertAndSend(
-                rabbitMqProp.getFriend().getExchange()
-                , rabbitMqProp.getFriend().getRoutes().get(FriendRoutes.REQUEST.getKey()).getRouting() +
+                rabbitMqProp.getFriend().getExchange() +
                         (notification.getNotiType().equals(NotificationType.REQUEST)
                                 ? request.getTarget().getUserId()
                                 : request.getRequester().getUserId())
+                , ""
                 , FriendRequestNotificationDto.of(notification)
         );
     }
@@ -323,6 +322,18 @@ public class FriendFacadeService {
         validateNotification(notification);
         notificationService.deleteNotification(notiId);
 
+    }
+
+    /**
+     * MQ 바인딩
+     *
+     * @param uuid - uuid(queue name)
+     */
+    public void declareBinding(String uuid) {
+        rabbitMqUtil.declareBinding(
+                rabbitMqProp.getFriend().getExchange() + CustomUserDetails.getDetails().getUserId()
+                , uuid
+        );
     }
 
 }

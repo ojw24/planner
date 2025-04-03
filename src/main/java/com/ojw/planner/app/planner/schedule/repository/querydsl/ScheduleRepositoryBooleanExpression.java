@@ -14,7 +14,11 @@ public class ScheduleRepositoryBooleanExpression {
         base = base.minusDays(base.getDayOfWeek().getValue());
 
         return schedule.startDtm.goe(base.atStartOfDay())
-                .and(schedule.startDtm.lt(base.plusDays(42).atStartOfDay()));
+                .and(schedule.startDtm.lt(base.plusDays(42).atStartOfDay()))
+                .or(
+                        schedule.endDtm.goe(base.atStartOfDay())
+                                .and(schedule.endDtm.lt(base.plusDays(42).atStartOfDay()))
+                );
 
     }
 

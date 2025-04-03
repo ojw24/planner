@@ -6,12 +6,14 @@ import com.ojw.planner.app.community.board.domain.dto.memo.BoardMemoCreateDto;
 import com.ojw.planner.app.community.board.domain.dto.memo.BoardMemoFindDto;
 import com.ojw.planner.app.community.board.domain.dto.memo.BoardMemoUpdateDto;
 import com.ojw.planner.app.community.board.service.BoardFacadeService;
+import com.ojw.planner.app.community.board.service.comment.BoardCommentService;
 import com.ojw.planner.app.community.board.service.memo.BoardMemoService;
 import com.ojw.planner.core.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,8 @@ public class BoardController {
     private final BoardFacadeService boardFacadeService;
 
     private final BoardMemoService boardMemoService;
+
+    private final BoardCommentService boardCommentService;
 
     @Operation(summary = "게시글 등록", tags = "Board")
     @PostMapping(path = "/{boardId}/memo", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -121,9 +125,20 @@ public class BoardController {
             @PathVariable("boardId") Long boardId
             , @Parameter(name = "boardMemoId", required = true) @NotNull @Positive
             @PathVariable("boardMemoId") Long boardMemoId
-            , @Parameter(hidden = true) @PageableDefault(sort = {"regDtm"}, direction = Sort.Direction.DESC) Pageable pageable
+            , @Parameter(hidden = true) @PageableDefault(sort = {"regDtm", "boardCommentId"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return new ResponseEntity<>(new ApiResponse<>(boardFacadeService.findBoardComments(boardId, boardMemoId, pageable)), HttpStatus.OK);
+    }
+
+    @Operation(summary = "댓글 순서 조회", tags = "Board")
+    @GetMapping(path = "/memo/{boardMemoId}/comment/{boardCommentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findBoardCommentOrder(
+            @Parameter(name = "boardMemoId", required = true) @NotNull @Positive
+            @PathVariable("boardMemoId") Long boardMemoId
+            , @Parameter(name = "boardCommentId", required = true) @NotNull @Positive
+            @PathVariable("boardCommentId") Long boardCommentId
+    ) {
+        return new ResponseEntity<>(new ApiResponse<>(boardCommentService.findBoardCommentOrder(boardMemoId, boardCommentId)), HttpStatus.OK);
     }
 
     @Operation(summary = "댓글 수정", tags = "Board")
@@ -179,6 +194,16 @@ public class BoardController {
     ) {
         boardFacadeService.deleteBoardCommentNotification(notiId);
         return new ResponseEntity<>(new ApiResponse<>("Board comment notification delete successful"), HttpStatus.OK);
+    }
+
+    @Operation(summary = "댓글 MQ 바인딩", tags = "Board")
+    @PostMapping(path = "/mq", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createBoardMQ(@RequestParam(name = "uuid") @NotBlank String uuid) {
+        boardFacadeService.declareBinding(uuid);
+        return new ResponseEntity<>(
+                new ApiResponse<>("Board mq creation successful")
+                , HttpStatus.CREATED
+        );
     }
 
 }

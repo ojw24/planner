@@ -20,6 +20,9 @@ public class BoardCommentNotificationDto implements Notification {
     @Schema(description = "알림 아이디")
     private Long notiId;
 
+    @Schema(description = "게시글 아이디")
+    private Long boardMemoId;
+
     @Schema(description = "댓글 아이디")
     private Long boardCommentId;
 
@@ -44,11 +47,12 @@ public class BoardCommentNotificationDto implements Notification {
     public static BoardCommentNotificationDto of(BoardCommentNotification notification) {
         return BoardCommentNotificationDto.builder()
                 .notiId(notification.getNotiId())
+                .boardMemoId(notification.getComment().getBoardMemo().getBoardMemoId())
                 .boardCommentId(notification.getComment().getBoardCommentId())
                 .content(notification.getComment().getContent())
                 .writerId(notification.getComment().getUser().getUserId())
                 .writerName(notification.getComment().getUser().getName())
-                .isChecked(notification.getIsChecked())
+                .isChecked(notification.getIsChecked() != null ? notification.getIsChecked() : false)
                 .regDtm(notification.getRegDtm())
                 .notification(NotificationDiv.COMMENT)
                 .build();

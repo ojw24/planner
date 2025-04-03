@@ -44,6 +44,25 @@ public class BoardCommentService {
                 .orElseThrow(() -> new ResponseException("not exist board comment : " + boardCommentId, HttpStatus.NOT_FOUND));
     }
 
+    /**
+     * 댓글 순서 조회
+     *
+     * @param boardMemoId    - 게시글 아이디
+     * @param boardCommentId - 댓글 아이디
+     * @return 댓글 순서
+     */
+    public Long findBoardCommentOrder(Long boardMemoId, Long boardCommentId) {
+        
+        BoardComment comment = getBoardComment(boardMemoId, boardCommentId);
+        BoardComment root = comment.getRoot() != null ? comment.getRoot() : comment;
+        return boardCommentRepository.getOrder(
+                boardMemoId
+                , root.getBoardCommentId()
+                , root.getRegDtm()
+        );
+                
+    }
+
     @Transactional
     public void deleteBoardComment(Long boardMemoId, Long boardCommentId) {
         BoardComment deleteComment = getBoardComment(boardMemoId, boardCommentId);
