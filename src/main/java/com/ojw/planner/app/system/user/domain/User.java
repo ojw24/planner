@@ -5,6 +5,7 @@ import com.ojw.planner.app.system.user.domain.dto.UserUpdateDto;
 import com.ojw.planner.app.system.user.domain.role.UserRole;
 import com.ojw.planner.app.system.user.domain.setting.UserSetting;
 import com.ojw.planner.core.domain.BaseEntity;
+import com.ojw.planner.core.enumeration.system.user.Authority;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -80,6 +82,11 @@ public class User extends BaseEntity {
 
     public void ban() {
         this.isBanned = true;
+    }
+
+    public boolean isAdmin() {
+        return !ObjectUtils.isEmpty(this.getRoles())
+                && this.getRoles().stream().anyMatch(r -> r.getRole().getAuthority().equals(Authority.ADMIN));
     }
 
 }

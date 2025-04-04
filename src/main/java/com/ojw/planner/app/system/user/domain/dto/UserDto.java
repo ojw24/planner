@@ -59,10 +59,7 @@ public class UserDto {
                 .name(user.getName())
                 .email(user.getEmail())
                 .isBanned(user.getIsBanned())
-                .isAdmin(
-                        !ObjectUtils.isEmpty(user.getRoles())
-                                && user.getRoles().stream().anyMatch(r -> r.getRole().getAuthority().equals(Authority.ADMIN))
-                )
+                .isAdmin(user.isAdmin())
                 .regDtm(user.getRegDtm())
                 .updtDtm(user.getUpdtDtm())
                 .setting(detail ? UserSettingDto.of(user.getSetting()) : null)
