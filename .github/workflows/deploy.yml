@@ -84,6 +84,18 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
+      # --- 추가할 디버깅 스텝 ---
+      - name: Verify Workspace Contents
+        run: |
+          echo "--- Current Directory (pwd) ---"
+          pwd
+          echo "--- Directory Listing (ls -la) ---"
+          ls -la
+          echo "--- Listing docker directory specifically (ls -la docker) ---"
+          # 아래 명령은 docker 디렉토리가 있으면 내용을 보여주고, 없으면 에러 메시지를 출력합니다.
+          ls -la docker || echo "*** 'docker' directory not found here! ***"
+      # --- 디버깅 스텝 끝 ---
+
       - name: Build docker image
         run: docker build -f docker/Dockerfile -t planner:latest .
 
