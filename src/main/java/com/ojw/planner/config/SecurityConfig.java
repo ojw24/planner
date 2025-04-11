@@ -50,6 +50,7 @@ public class SecurityConfig {
                 , "/auth/login"
                 , "/auth/refresh"
                 , "/user/auth/**"
+                , "/actuator/health"
         );
     }
 

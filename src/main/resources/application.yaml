@@ -44,6 +44,7 @@ spring:
     host: ${PL_MQ_HOST}
     port: ${PL_MQ_PORT}
     stomp: ${PL_MQ_STOMP}
+    domain: ${PL_MQ_DOMAIN}
     username: ${PL_MQ_USER}
     password: ${PL_MQ_PASSWORD}
     dynamic: true
@@ -78,3 +79,12 @@ jwt:
   system-key: ${PL_SYS_APP_KEY}
   access-expire: ${PL_JWT_ACCESS_EXPIRE}
   refresh-expire: ${PL_JWT_REFRESH_EXPIRE}
+
+log:
+  path: ${PL_LOG_PATH}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"

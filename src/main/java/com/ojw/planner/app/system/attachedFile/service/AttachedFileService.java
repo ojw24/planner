@@ -42,8 +42,7 @@ public class AttachedFileService {
     }
 
     private String getPath(MultipartFile file, Storage storage) {
-        return System.getProperty("user.home")
-                + storage.getPath()
+        return storage.getPath()
                 + File.separator
                 + UUID.randomUUID()
                 + "."
