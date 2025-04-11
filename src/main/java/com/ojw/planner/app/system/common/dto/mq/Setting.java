@@ -18,9 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Setting {
 
-    private String host;
-
-    private Integer port;
+    private String domain;
 
     private String user;
 
@@ -34,10 +32,9 @@ public class Setting {
         return this;
     }
 
-    public static Setting of(RabbitMqConfigProperties props, String host, Integer port) throws Exception {
+    public static Setting of(RabbitMqConfigProperties props, String domain) throws Exception {
         return Setting.builder()
-                .host(host)
-                .port(port)
+                .domain(domain)
                 .configs(getConfigs(props))
                 .build();
     }

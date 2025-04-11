@@ -11,11 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommonService {
 
-    @Value("${spring.rabbitmq.host}")
-    private String mqHost;
-
-    @Value("${spring.rabbitmq.stomp}")
-    private Integer mqPort;
+    @Value("${spring.rabbitmq.domain}")
+    private String mqDomain;
 
     @Value("${spring.rabbitmq.username}")
     private String mqUser;
@@ -34,8 +31,7 @@ public class CommonService {
      */
     public Setting getMqConfig() throws Exception {
         return Setting.builder()
-                .host(mqHost)
-                .port(mqPort)
+                .domain(mqDomain)
                 .user(mqUser)
                 .password(mqPassword)
                 .build()
