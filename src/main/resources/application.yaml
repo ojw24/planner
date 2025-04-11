@@ -1,0 +1,90 @@
+spring:
+  application:
+    name: planner
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${PL_DB_USER}
+    password: ${PL_DB_PWD}
+    url: jdbc:postgresql://${PL_DB_URL}/${PL_DB_NAME}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+        use_sql_comments: true
+    open-in-view: false
+
+  mail:
+    host: ${PL_MAIL_HOST}
+    port: ${PL_MAIL_PORT}
+    username: ${PL_MAIL_USERNAME}
+    password: ${PL_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: ${PL_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
+          starttls:
+            enable: ${PL_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+    path:
+      home: ${PL_MAIL_PATH_HOME}
+      password: ${PL_MAIL_PATH_PASSWORD}
+
+  data:
+    redis:
+      host: ${PL_REDIS_HOST}
+      port: ${PL_REDIS_PORT}
+      expire:
+        password: ${PL_REDIS_EXPIRE_PASSWORD}
+
+  rabbitmq:
+    host: ${PL_MQ_HOST}
+    port: ${PL_MQ_PORT}
+    stomp: ${PL_MQ_STOMP}
+    domain: ${PL_MQ_DOMAIN}
+    username: ${PL_MQ_USER}
+    password: ${PL_MQ_PASSWORD}
+    dynamic: true
+
+rabbitmq:
+  friend:
+    exchange: ${PL_MQ_FRIEND_EXCHANGE}
+    routes:
+      request:
+        routing: ${PL_MQ_FRIEND_REQUEST_ROUTING}
+  board:
+    exchange: ${PL_MQ_BOARD_EXCHANGE}
+    routes:
+      comment:
+        routing: ${PL_MQ_BOARD_COMMENT_ROUTING}
+  schedule:
+    exchange: ${PL_MQ_SCH_EXCHANGE}
+    routes:
+      request:
+        routing: ${PL_MQ_SCH_REQUEST_ROUTING}
+
+
+server:
+  servlet:
+    context-path: /planner/api
+  port: ${PL_APP_PORT}
+
+jwt:
+  access-key: ${PL_JWT_ACCESS_KEY}
+  refresh-private-key: ${PL_JWT_REFRESH_PRIVATE_KEY}
+  refresh-public-key: ${PL_JWT_REFRESH_PUBLIC_KEY}
+  system-key: ${PL_SYS_APP_KEY}
+  access-expire: ${PL_JWT_ACCESS_EXPIRE}
+  refresh-expire: ${PL_JWT_REFRESH_EXPIRE}
+
+log:
+  path: ${PL_LOG_PATH}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
