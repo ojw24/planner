@@ -103,7 +103,7 @@ jobs:
           ssh -i id_rsa -o StrictHostKeyChecking=no \
             -p "${{ secrets.SSH_PORT }}" \
             "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "${{ secrets.KUBECTL_COMMAND }}"
+            "${{ secrets.DEPLOY_COMMAND }}"
 
       - name: Clean up SSH key
         run: rm -f id_rsa
