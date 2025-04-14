@@ -22,8 +22,8 @@ public class SMTPRequest {
                 "요청하신 아이디 찾기 결과입니다.<br />" +
                 "아이디 : " + userId + "<br />" +
                 "<br />" +
-                "<a href=\"" + home + "\">로그인하기</a><br />" +
-                "문의사항은 회신 부탁드립니다. 감사합니다.";
+                "<a href=\"" + home + "\">로그인하기</a><br /><br />" +
+                "* 본 메일은 발신전용 입니다.";
 
         return this;
     }
@@ -37,7 +37,8 @@ public class SMTPRequest {
                 "\">비밀번호 재설정</a><br />" +
                 "<br />" +
                 getExpire(passwordExpire) +
-                "문의사항은 회신 부탁드립니다. 감사합니다.";
+                "<br />" +
+                "* 본 메일은 발신전용 입니다.";
 
         return this;
     }

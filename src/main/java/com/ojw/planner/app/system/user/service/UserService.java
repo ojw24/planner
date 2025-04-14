@@ -196,13 +196,15 @@ public class UserService {
      * @param email - 사용자 이메일
      */
     public void findUserId(String email) {
-        smtpUtil.send(
-                SMTPRequest.builder()
-                        .to(email)
-                        .subject("[Planner] 아이디 안내")
-                        .build()
-                        .findId(getUserByEmail(email).getUserId(), homePath)
-        );
+        Thread.startVirtualThread(() -> {
+            smtpUtil.send(
+                    SMTPRequest.builder()
+                            .to(email)
+                            .subject("[Planner] 아이디 안내")
+                            .build()
+                            .findId(getUserByEmail(email).getUserId(), homePath)
+            );
+        });
     }
 
     @Transactional
@@ -275,13 +277,15 @@ public class UserService {
     }
 
     public void sendPasswordReset(String userId, String key, Long passwordExpire) {
-        smtpUtil.send(
-                SMTPRequest.builder()
-                    .to(getUser(userId).getEmail())
-                    .subject("[Planner] 비밀번호 재설정")
-                    .build()
-                    .passwordReset(userId, passwordPath, key, passwordExpire)
-        );
+        Thread.startVirtualThread(() -> {
+            smtpUtil.send(
+                    SMTPRequest.builder()
+                            .to(getUser(userId).getEmail())
+                            .subject("[Planner] 비밀번호 재설정")
+                            .build()
+                            .passwordReset(userId, passwordPath, key, passwordExpire)
+            );
+        });
     }
 
     @Transactional
