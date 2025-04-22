@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -59,6 +60,11 @@ public class Schedule extends BaseEntity {
     @Column(name = "location")
     private String location;
 
+    @Comment("종일 여부")
+    @ColumnDefault("false")
+    @Column(name = "is_all", nullable = false)
+    private Boolean isAll;
+
     public void update(ScheduleUpdateDto updateDto) {
 
         if(StringUtils.hasText(updateDto.getName())) this.name = updateDto.getName();
@@ -68,6 +74,8 @@ public class Schedule extends BaseEntity {
         if(!ObjectUtils.isEmpty(updateDto.getEndDtm())) this.endDtm = updateDto.getEndDtm();
 
         this.location = updateDto.getLocation();
+
+        if(!ObjectUtils.isEmpty(updateDto.getIsAll())) this.isAll = updateDto.getIsAll();
 
     }
 
