@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,9 +36,17 @@ public class ScheduleService {
     private void validateCreateDto(ScheduleCreateDto createDto, Goal goal, User user) {
         validateGoal(createDto, goal, user);
         validateDate(createDto.getStartDtm(), createDto.getEndDtm());
+        adjustTimeIfAll(createDto);
     }
 
-    public void validateGoal(ScheduleCreateDto createDto, Goal goal, User user) {
+    private void adjustTimeIfAll(ScheduleCreateDto createDto) {
+        if(createDto.getIsAll() != null && createDto.getIsAll()) {
+            createDto.setStartDtm(createDto.getStartDtm().with(LocalTime.MIN));
+            createDto.setEndDtm(createDto.getEndDtm().with(LocalTime.MAX).withNano(0));
+        }
+    }
+
+    private void validateGoal(ScheduleCreateDto createDto, Goal goal, User user) {
 
         if(goal != null) {
 
@@ -94,6 +103,32 @@ public class ScheduleService {
                 ? schedule.getEndDtm() : updateDto.getEndDtm();
 
         validateDate(startDtm, endDtm);
+        adjustTimeIfAll(updateDto, startDtm, endDtm, schedule.getIsAll());
+
+    }
+
+    private void adjustTimeIfAll(
+            ScheduleUpdateDto updateDto
+            , LocalDateTime startDtm
+            , LocalDateTime endDtm
+            , boolean isAll
+    ) {
+
+        if(updateDto.getIsAll() != null) {
+
+            if(updateDto.getIsAll()) {
+                updateDto.setStartDtm(startDtm.with(LocalTime.MIN));
+                updateDto.setEndDtm(endDtm.with(LocalTime.MAX).withNano(0));
+            }
+
+        } else {
+
+            if(isAll) {
+                updateDto.setStartDtm(startDtm.with(LocalTime.MIN));
+                updateDto.setEndDtm(endDtm.with(LocalTime.MAX).withNano(0));
+            }
+
+        }
 
     }
 

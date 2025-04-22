@@ -36,6 +36,9 @@ public class ScheduleDto {
     @Schema(description = "장소")
     private String location;
 
+    @Schema(description = "종일 여부")
+    private Boolean isAll;
+
     @Schema(description = "등록일시")
     private LocalDateTime regDtm;
 
@@ -58,6 +61,7 @@ public class ScheduleDto {
                 .startDtm(schedule.getStartDtm())
                 .endDtm(schedule.getEndDtm())
                 .location(schedule.getLocation())
+                .isAll(schedule.getIsAll())
                 .regDtm(schedule.getRegDtm())
                 .updtDtm(schedule.getUpdtDtm())
                 .shared(shared)
