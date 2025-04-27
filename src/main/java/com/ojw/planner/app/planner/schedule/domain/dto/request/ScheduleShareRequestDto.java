@@ -2,6 +2,7 @@ package com.ojw.planner.app.planner.schedule.domain.dto.request;
 
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.app.planner.schedule.domain.share.request.ScheduleShareRequest;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,9 +44,9 @@ public class ScheduleShareRequestDto {
     public static ScheduleShareRequestDto of(ScheduleShareRequest request) {
         return ScheduleShareRequestDto.builder()
                 .reqId(request.getReqId())
-                .requesterId(request.getRequester().getUserId())
+                .requesterId(Utils.maskingId(request.getRequester().getUserId()))
                 .requesterName(request.getRequester().getName())
-                .targetId(request.getTarget().getUserId())
+                .targetId(Utils.maskingId(request.getTarget().getUserId()))
                 .targetName(request.getTarget().getName())
                 .regDtm(request.getRegDtm())
                 .updtDtm(request.getUpdtDtm())

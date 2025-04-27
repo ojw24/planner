@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Schema(description = "게시글 조회 DTO")
 public class BoardMemoFindDto {
 
-    @Schema(description = "검색 조건(제목 / 작성자 이름)", example = "id")
+    @Schema(description = "검색 조건(제목 / 작성자 이름 / 작성자 고유 키)", example = "title")
     private SearchType searchType;
 
     @Schema(description = "검색어")

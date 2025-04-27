@@ -16,7 +16,8 @@ import static com.ojw.planner.app.community.board.domain.memo.QBoardMemo.boardMe
 public enum SearchType implements EnumMapper {
 
     TITLE("title", "제목", boardMemo.title::containsIgnoreCase),
-    NAME("name", "작성자 이름", boardMemo.user.name::containsIgnoreCase);
+    NAME("name", "작성자 이름", boardMemo.user.name::containsIgnoreCase),
+    UUID("uuid", "작성자 고유 키", boardMemo.user.uuid::containsIgnoreCase);
 
     private final String code;
 

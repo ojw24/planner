@@ -147,7 +147,7 @@ public class FriendController {
         return new ResponseEntity<>(new ApiResponse<>("Friend request notification delete successful"), HttpStatus.OK);
     }
 
-    @Operation(summary = "친구 MQ 바인딩", tags = "Board")
+    @Operation(summary = "친구 MQ 바인딩", tags = "Friend")
     @PostMapping(path = "/mq", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createBoardMQ(@RequestParam(name = "uuid") @NotBlank String uuid) {
         friendFacadeService.declareBinding(uuid);

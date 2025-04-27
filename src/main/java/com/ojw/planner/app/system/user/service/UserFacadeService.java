@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,8 +61,9 @@ public class UserFacadeService {
      *
      * @param userId - 사용자 아이디
      */
-    public void sendPasswordReset(String userId) {
+    public void sendPasswordReset(String userId, String uuid) {
 
+        userId = validateUserId(userId, uuid);
         String key = pwdResetKeyService.saveKey(
                 PwdResetKey.builder()
                         .userId(userId)
@@ -71,6 +73,21 @@ public class UserFacadeService {
         );
 
         userService.sendPasswordReset(userId, key, passwordExpire);
+
+    }
+
+    private String validateUserId(String userId, String uuid) {
+
+        if(StringUtils.hasText(userId)) {
+            return userId;
+        } else {
+
+            if(!StringUtils.hasText(uuid))
+                throw new ResponseException("잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
+
+            return userService.getUserByUuid(uuid).getUserId();
+
+        }
 
     }
 

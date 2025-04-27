@@ -21,6 +21,8 @@ public class CustomUserDetails implements UserDetails {
 
     private String userId;
 
+    private String uuid;
+
     private String password;
 
     private String username;
@@ -30,6 +32,7 @@ public class CustomUserDetails implements UserDetails {
     public static CustomUserDetails of(User user) {
         return CustomUserDetails.builder()
                 .userId(user.getUserId())
+                .uuid(user.getUuid())
                 .password(user.getPassword())
                 .username(user.getPassword())
                 .authorities(

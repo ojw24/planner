@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ojw.planner.app.system.attachedFile.domain.dto.AttachedFileDto;
 import com.ojw.planner.app.system.user.domain.User;
 import com.ojw.planner.app.system.user.domain.setting.UserSetting;
-import com.ojw.planner.core.enumeration.system.user.Authority;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +22,9 @@ public class UserDto {
 
     @Schema(description = "사용자 아이디")
     private String userId;
+
+    @Schema(description = "고유 키")
+    private String uuid;
 
     @Schema(description = "이름")
     private String name;
@@ -55,7 +58,8 @@ public class UserDto {
 
     public static UserDto of(User user, boolean detail) {
         return UserDto.builder()
-                .userId(user.getUserId())
+                .userId(Utils.maskingId(user.getUserId()))
+                .uuid(user.getUuid())
                 .name(user.getName())
                 .email(user.getEmail())
                 .isBanned(user.getIsBanned())
