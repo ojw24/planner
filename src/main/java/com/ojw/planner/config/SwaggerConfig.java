@@ -22,15 +22,6 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi systemApi() {
-        return GroupedOpenApi.builder()
-                .group("1. System API")
-                .packagesToScan("com.ojw.planner.app.system")
-                .addOpenApiCustomizer(getSecurityCustomizer("System"))
-                .build();
-    }
-
-    @Bean
     public GroupedOpenApi plannerApi() {
         return GroupedOpenApi.builder()
                 .group("1. Planner API")
@@ -45,6 +36,15 @@ public class SwaggerConfig {
                 .group("2. Community API")
                 .packagesToScan("com.ojw.planner.app.community")
                 .addOpenApiCustomizer(getSecurityCustomizer("Community"))
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi systemApi() {
+        return GroupedOpenApi.builder()
+                .group("3. System API")
+                .packagesToScan("com.ojw.planner.app.system")
+                .addOpenApiCustomizer(getSecurityCustomizer("System"))
                 .build();
     }
 

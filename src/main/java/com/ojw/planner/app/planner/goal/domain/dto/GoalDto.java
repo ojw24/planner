@@ -5,6 +5,7 @@ import com.ojw.planner.app.planner.goal.domain.Goal;
 import com.ojw.planner.app.planner.schedule.domain.dto.ScheduleDto;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
 import com.ojw.planner.core.enumeration.planner.goal.GoalType;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -68,7 +69,7 @@ public class GoalDto {
     public static GoalDto of(Goal goal, boolean detail) {
         return GoalDto.builder()
                 .goalId(goal.getGoalId())
-                .userId(goal.getUser().getUserId())
+                .userId(Utils.maskingId(goal.getUser().getUserId()))
                 .userName(goal.getUser().getName())
                 .name(goal.getName())
                 .isAchieve(goal.getIsAchieve())

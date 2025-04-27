@@ -1,6 +1,7 @@
 package com.ojw.planner.app.community.board.domain.dto.comment;
 
 import com.ojw.planner.app.community.board.domain.comment.BoardComment;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,8 +29,14 @@ public class BoardCommentDto {
     @Schema(description = "작성자 아이디")
     private String userId;
 
+    @Schema(description = "작성자 고유 키")
+    private String userUuid;
+
     @Schema(description = "작성자 이름")
     private String userName;
+
+    @Schema(description = "프로필")
+    private String profile;
 
     @Schema(description = "내용")
     private String content;
@@ -50,8 +57,14 @@ public class BoardCommentDto {
         return BoardCommentDto.builder()
                 .boardCommentId(boardComment.getBoardCommentId())
                 .boardMemoId(boardComment.getBoardMemo().getBoardMemoId())
-                .userId(boardComment.getUser().getUserId())
+                .userId(Utils.maskingId(boardComment.getUser().getUserId()))
+                .userUuid(boardComment.getUser().getUuid())
                 .userName(boardComment.getUser().getName())
+                .profile(
+                        boardComment.getUser().getAttachedFile() != null
+                                ? boardComment.getUser().getAttachedFile().getPath()
+                                : null
+                )
                 .content(boardComment.getContent())
                 .regDtm(boardComment.getRegDtm())
                 .updtDtm(boardComment.getUpdtDtm())

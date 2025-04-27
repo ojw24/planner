@@ -5,6 +5,7 @@ import com.ojw.planner.app.planner.schedule.domain.share.request.notification.Sc
 import com.ojw.planner.core.domain.Notification;
 import com.ojw.planner.core.enumeration.common.NotificationDiv;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,9 +57,9 @@ public class ScheduleShareRequestNotificationDto implements Notification {
         return ScheduleShareRequestNotificationDto.builder()
                 .notiId(notification.getNotiId())
                 .reqId(notification.getRequest().getReqId())
-                .requesterId(notification.getRequest().getRequester().getUserId())
+                .requesterId(Utils.maskingId(notification.getRequest().getRequester().getUserId()))
                 .requesterName(notification.getRequest().getRequester().getName())
-                .targetId(notification.getRequest().getTarget().getUserId())
+                .targetId(Utils.maskingId(notification.getRequest().getTarget().getUserId()))
                 .targetName(notification.getRequest().getTarget().getName())
                 .notiType(
                         EnumValue.toEnumValue(

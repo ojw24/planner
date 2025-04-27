@@ -1,6 +1,7 @@
 package com.ojw.planner.app.system.friend.domain.dto.request;
 
 import com.ojw.planner.app.system.friend.domain.request.FriendRequest;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,8 +37,8 @@ public class FriendRequestDto {
                 .friendReqId(request.getFriendReqId())
                 .targetId(
                         inbound
-                                ? request.getRequester().getUserId()
-                                : request.getTarget().getUserId()
+                                ? Utils.maskingId(request.getRequester().getUserId())
+                                : Utils.maskingId(request.getTarget().getUserId())
                 )
                 .targetName(
                         inbound

@@ -20,6 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @SuperBuilder
 @DynamicUpdate
@@ -35,6 +36,10 @@ public class User extends BaseEntity {
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
     private String userId;
+
+    @Comment("고유 키")
+    @Column(name = "uuid", nullable = false, updatable = false, unique = true)
+    private String uuid;
 
     @Comment("비밀번호")
     @Column(name = "password", nullable = false)
@@ -63,6 +68,12 @@ public class User extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attc_file_id")
     private AttachedFile attachedFile;
+
+    @Override
+    public void onPrePersist() {
+        super.onPrePersist();
+        this.uuid = UUID.randomUUID().toString();
+    }
 
     public void update(UserUpdateDto updateDto, AttachedFile attachedFile) {
 

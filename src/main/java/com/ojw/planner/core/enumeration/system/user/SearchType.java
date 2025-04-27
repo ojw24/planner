@@ -15,7 +15,7 @@ import static com.ojw.planner.app.system.user.domain.QUser.user;
 @AllArgsConstructor
 public enum SearchType implements EnumMapper {
 
-    ID("id", "사용자 아이디", user.userId::containsIgnoreCase),
+    UUID("uuid", "사용자 고유 키", user.uuid::containsIgnoreCase),
     NAME("name", "사용자 이름", user.name::containsIgnoreCase);
 
     private final String code;

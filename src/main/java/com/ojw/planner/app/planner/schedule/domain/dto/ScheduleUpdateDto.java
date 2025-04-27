@@ -25,4 +25,7 @@ public class ScheduleUpdateDto {
     @Schema(description = "장소")
     private String location;
 
+    @Schema(description = "종일 여부")
+    private Boolean isAll;
+
 }

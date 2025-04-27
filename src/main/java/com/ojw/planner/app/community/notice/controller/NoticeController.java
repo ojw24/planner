@@ -70,7 +70,7 @@ public class NoticeController {
     }
 
     @PreAuthorize("hasRole(T(com.ojw.planner.core.enumeration.system.user.Authority).ADMIN.description)")
-    @Operation(summary = "공지사항 삭제", tags = "User")
+    @Operation(summary = "공지사항 삭제", tags = "Notice")
     @DeleteMapping(path = "/{noticeId}")
     public ResponseEntity<?> deleteNotice(
             @Parameter(name = "noticeId", required = true) @NotNull @Positive @PathVariable("noticeId") Long noticeId

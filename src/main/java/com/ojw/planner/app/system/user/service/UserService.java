@@ -23,6 +23,7 @@ import com.ojw.planner.core.enumeration.inner.JwtType;
 import com.ojw.planner.core.enumeration.system.user.Authority;
 import com.ojw.planner.core.util.SMTPUtil;
 import com.ojw.planner.core.util.ServiceUtil;
+import com.ojw.planner.core.util.Utils;
 import com.ojw.planner.core.util.dto.smtp.SMTPRequest;
 import com.ojw.planner.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
@@ -71,7 +72,7 @@ public class UserService {
      * 사용자 등록
      *
      * @param createDto - 등록 정보
-     * @return 생성된 사용자 아이디
+     * @return 생성된 사용자 고유 키
      */
     @Transactional
     public String createUser(UserCreateDto createDto) {
@@ -81,7 +82,7 @@ public class UserService {
         User createUser = userRepository.save(createDto.toEntity(passwordEncoder.encode(createDto.getPassword())));
         createLinked(createUser);
 
-        return createUser.getUserId();
+        return createUser.getUuid();
 
     }
 
@@ -151,17 +152,20 @@ public class UserService {
      * @return 사용자 정보 목록
      */
     public List<UserSimpleDto> findSimpleUsers(UserFindDto findDto) {
-        return userRepository.findSimples(findDto, CustomUserDetails.getDetails().getUserId());
+        return userRepository.findSimples(findDto, CustomUserDetails.getDetails().getUserId())
+                .stream()
+                .peek(u -> u.setUserId(Utils.maskingId(u.getUserId())))
+                .collect(Collectors.toList());
     }
 
     /**
      * 사용자 상세 조회
      *
-     * @param userId - 사용자 아이디
+     * @param uuid - 사용자 고유 키
      * @return 사용자 상세 정보
      */
-    public UserDto findUser(String userId){
-        return UserDto.of(getUser(userId), true);
+    public UserDto findUser(String uuid){
+        return UserDto.of(getUserByUuid(uuid), true);
     }
 
     /**
@@ -190,6 +194,11 @@ public class UserService {
                 .orElseThrow(() -> new ResponseException("해당 이메일로 가입된 사용자가 없습니다.", HttpStatus.NOT_FOUND));
     }
 
+    public User getUserByUuid(String uuid) {
+        return userRepository.findByUuidAndIsDeletedIsFalse(uuid)
+                .orElseThrow(() -> new ResponseException("존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND));
+    }
+
     /**
      * 아이디 찾기
      *
@@ -208,23 +217,23 @@ public class UserService {
     }
 
     @Transactional
-    public String updateUser(String userId, UserUpdateDto updateDto) {
-        return updateUser(userId, updateDto, true);
+    public String updateUser(String uuid, UserUpdateDto updateDto) {
+        return updateUser(uuid, updateDto, true);
     }
 
     /**
      * 사용자 수정
      *
-     * @param userId    - 사용자 아이디
+     * @param uuid      - 사용자 고유 키
      * @param updateDto - 수정 정보
      * @return 수정된 사용자 아이디
      */
     @Transactional
-    public String updateUser(String userId, UserUpdateDto updateDto, boolean update) {
+    public String updateUser(String uuid, UserUpdateDto updateDto, boolean update) {
 
-        validateUpdateDto(userId, updateDto, update);
+        validateUpdateDto(uuid, updateDto, update);
 
-        User updateUser = getUser(userId);
+        User updateUser = getUserByUuid(uuid);
         updateUser.update(
                 updateDto
                 , ObjectUtils.isEmpty(updateDto.getAttcFileId())
@@ -234,19 +243,19 @@ public class UserService {
         );
         updateLinked(updateUser, updateDto);
 
-        return userId;
+        return uuid;
 
     }
 
-    private void validateUpdateDto(String userId, UserUpdateDto updateDto, boolean update) {
+    private void validateUpdateDto(String uuid, UserUpdateDto updateDto, boolean update) {
 
-        if(update) ServiceUtil.validateOwner(userId);
+        if(update) ServiceUtil.validateOwnerByUuid(uuid);
 
         if(StringUtils.hasText(updateDto.getPassword()))
             updateDto.setPassword(passwordEncoder.encode(updateDto.getPassword()));
 
         if(StringUtils.hasText(updateDto.getEmail())) {
-            if(userRepository.findByEmailAndUserIdNotAndIsDeletedIsFalse(updateDto.getEmail(), userId).isPresent())
+            if(userRepository.findByEmailAndUuidNotAndIsDeletedIsFalse(updateDto.getEmail(), uuid).isPresent())
                 throw new ResponseException("해당 이메일로 가입된 아이디가 있습니다.", HttpStatus.CONFLICT);
         }
 
@@ -263,17 +272,21 @@ public class UserService {
     /**
      * 사용자 정지
      *
-     * @param userId - 사용자 아이디
+     * @param uuid - 사용자 고유 키
      */
     @Transactional
-    public void banUser(String userId) {
-        getUser(userId).ban();
+    public void banUser(String uuid) {
+
+        User user = getUserByUuid(uuid);
+        user.ban();
+
         bannedUserService.saveUser(
                 BannedUser.builder()
-                        .userId(userId)
+                        .userId(user.getUserId())
                         .expire(JwtType.ACCESS.getExpire())
                         .build()
         );
+
     }
 
     public void sendPasswordReset(String userId, String key, Long passwordExpire) {
@@ -291,25 +304,27 @@ public class UserService {
     @Transactional
     public void userPasswordReset(PwdResetRequest request) {
 
-        AttachedFile file = getUser(request.getUserId()).getAttachedFile();
+        User user = getUser(request.getUserId());
+        AttachedFile file = user.getAttachedFile();
+
         UserUpdateDto pwdResetDto = UserUpdateDto.builder()
                 .password(request.getPassword())
                 .attcFileId(file != null ? file.getAttcFileId() : null)
                 .build();
 
-        updateUser(request.getUserId(), pwdResetDto, false);
+        updateUser(user.getUuid(), pwdResetDto, false);
 
     }
 
     /**
      * 사용자 삭제
      *
-     * @param userId - 사용자 아이디
+     * @param uuid - 사용자 고유 키
      */
     @Transactional
-    public void deleteUser(String userId) {
-        ServiceUtil.validateOwner(userId);
-        getUser(userId).delete();
+    public void deleteUser(String uuid) {
+        ServiceUtil.validateOwnerByUuid(uuid);
+        getUserByUuid(uuid).delete();
     }
 
 }

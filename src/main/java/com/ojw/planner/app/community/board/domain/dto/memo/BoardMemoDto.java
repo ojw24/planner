@@ -1,6 +1,7 @@
 package com.ojw.planner.app.community.board.domain.dto.memo;
 
 import com.ojw.planner.app.community.board.domain.memo.BoardMemo;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,7 +47,7 @@ public class BoardMemoDto {
         return BoardMemoDto.builder()
                 .boardMemoId(boardMemo.getBoardMemoId())
                 .boardId(boardMemo.getBoard().getBoardId())
-                .userId(boardMemo.getUser().getUserId())
+                .userId(Utils.maskingId(boardMemo.getUser().getUserId()))
                 .userName(boardMemo.getUser().getName())
                 .title(boardMemo.getTitle())
                 .content(boardMemo.getContent())

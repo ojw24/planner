@@ -35,6 +35,9 @@ public class ScheduleCreateDto {
     @Schema(description = "장소")
     private String location;
 
+    @Schema(description = "종일 여부")
+    private Boolean isAll;
+
     public Schedule toEntity(User user, Goal goal) {
         return Schedule.builder()
                 .user(user)
@@ -43,6 +46,7 @@ public class ScheduleCreateDto {
                 .startDtm(this.startDtm)
                 .endDtm(this.endDtm)
                 .location(this.location)
+                .isAll(this.isAll)
                 .build();
     }
 

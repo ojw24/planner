@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum JwtClaim {
 
     ID("id"),
-    NAME("name");
+    NAME("name"),
+    UUID("uuid");
 
     private final String type;
 

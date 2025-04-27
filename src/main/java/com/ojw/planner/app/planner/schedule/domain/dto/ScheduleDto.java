@@ -1,6 +1,7 @@
 package com.ojw.planner.app.planner.schedule.domain.dto;
 
 import com.ojw.planner.app.planner.schedule.domain.Schedule;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,9 @@ public class ScheduleDto {
     @Schema(description = "장소")
     private String location;
 
+    @Schema(description = "종일 여부")
+    private Boolean isAll;
+
     @Schema(description = "등록일시")
     private LocalDateTime regDtm;
 
@@ -52,12 +56,13 @@ public class ScheduleDto {
     public static ScheduleDto of(Schedule schedule, boolean shared) {
         return ScheduleDto.builder()
                 .scheduleId(schedule.getScheduleId())
-                .userId(schedule.getUser().getUserId())
+                .userId(Utils.maskingId(schedule.getUser().getUserId()))
                 .userName(schedule.getUser().getName())
                 .name(schedule.getName())
                 .startDtm(schedule.getStartDtm())
                 .endDtm(schedule.getEndDtm())
                 .location(schedule.getLocation())
+                .isAll(schedule.getIsAll())
                 .regDtm(schedule.getRegDtm())
                 .updtDtm(schedule.getUpdtDtm())
                 .shared(shared)
