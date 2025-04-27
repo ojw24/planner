@@ -60,12 +60,12 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>(userService.findSimpleUsers(findDto)), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 상세 조회", description = "ID로 조회", tags = "User")
-    @GetMapping(path = "/{userId}")
+    @Operation(summary = "사용자 상세 조회", description = "UUID로 조회", tags = "User")
+    @GetMapping(path = "/{uuid}")
     public ResponseEntity<?> findUser(
-            @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
+            @Parameter(name = "uuid", required = true) @NotBlank @PathVariable("uuid") String uuid
     ) {
-        return new ResponseEntity<>(new ApiResponse<>(userService.findUser(userId)), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(userService.findUser(uuid)), HttpStatus.OK);
     }
 
     @Operation(summary = "사용자 상세 조회", description = "사용자 직접 조회", tags = "User")
@@ -93,29 +93,30 @@ public class UserController {
     }
 
     @Operation(summary = "사용자 정보 수정", tags = "User")
-    @PutMapping(path = "/{userId}")
+    @PutMapping(path = "/{uuid}")
     public ResponseEntity<?> updateUser(
             @RequestBody @Valid UserUpdateDto updateDto
-            , @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
+            , @Parameter(name = "uuid", required = true) @NotBlank @PathVariable("uuid") String uuid
     ) {
-        userService.updateUser(userId, updateDto);
+        userService.updateUser(uuid, updateDto);
         return new ResponseEntity<>(new ApiResponse<>("User update successful"), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole(T(com.ojw.planner.core.enumeration.system.user.Authority).ADMIN.description)")
     @Operation(summary = "사용자 정지", description = "사용자 아이디로 정지", tags = "User")
-    @PutMapping(path = "/{userId}/ban")
-    public ResponseEntity<?> banUser(@Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId) {
-        userService.banUser(userId);
+    @PutMapping(path = "/{uuid}/ban")
+    public ResponseEntity<?> banUser(@Parameter(name = "uuid", required = true) @NotBlank @PathVariable("uuid") String uuid) {
+        userService.banUser(uuid);
         return new ResponseEntity<>(new ApiResponse<>("User ban successful"), HttpStatus.OK);
     }
 
     @Operation(summary = "사용자 비밀번호 재설정", description = "비밀번호 재설정 메일 전송", tags = "User")
     @PutMapping(path = "/auth/find-password")
     public ResponseEntity<?> sendPasswordReset(
-            @Parameter(name = "userId", required = true) @NotBlank String userId
+            @Parameter(name = "userId") String userId
+            , @Parameter(name = "uuid") String uuid
     ) {
-        userFacadeService.sendPasswordReset(userId);
+        userFacadeService.sendPasswordReset(userId, uuid);
         return new ResponseEntity<>(new ApiResponse<>("User password reset mail is sent"), HttpStatus.OK);
     }
 
@@ -129,11 +130,11 @@ public class UserController {
     }
 
     @Operation(summary = "사용자 삭제", description = "사용자 아이디로 삭제", tags = "User")
-    @DeleteMapping(path = "/{userId}")
+    @DeleteMapping(path = "/{uuid}")
     public ResponseEntity<?> deleteUser(
-            @Parameter(name = "userId", required = true) @NotBlank @PathVariable("userId") String userId
+            @Parameter(name = "uuid", required = true) @NotBlank @PathVariable("uuid") String uuid
     ) {
-        userService.deleteUser(userId);
+        userService.deleteUser(uuid);
         return new ResponseEntity<>(new ApiResponse<>("User delete successful"), HttpStatus.OK);
     }
 

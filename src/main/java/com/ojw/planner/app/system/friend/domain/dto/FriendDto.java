@@ -1,6 +1,7 @@
 package com.ojw.planner.app.system.friend.domain.dto;
 
 import com.ojw.planner.app.system.friend.domain.Friend;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +26,7 @@ public class FriendDto {
     public static FriendDto of(Friend friend) {
         return FriendDto.builder()
                 .friendId(friend.getFriendId())
-                .friendUserId(friend.getFriend().getUserId())
+                .friendUserId(Utils.maskingId(friend.getFriend().getUserId()))
                 .friendUserName(friend.getFriend().getName())
                 .build();
     }

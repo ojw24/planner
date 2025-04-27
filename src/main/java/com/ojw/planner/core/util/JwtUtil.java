@@ -30,6 +30,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim(JwtClaim.ID.getType(), user.getUserId())
                 .claim(JwtClaim.NAME.getType(), user.getName())
+                .claim(JwtClaim.UUID.getType(), user.getUuid())
                 .claim("isAdmin", user.isAdmin())
                 .expiration(new Date(System.currentTimeMillis() + type.getExpire()))
                 .signWith(type.getKey())

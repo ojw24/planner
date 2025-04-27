@@ -133,7 +133,7 @@ public class ScheduleController {
         return new ResponseEntity<>(new ApiResponse<>("Schedule share request notification delete successful"), HttpStatus.OK);
     }
 
-    @Operation(summary = "일정 MQ 바인딩", tags = "Board")
+    @Operation(summary = "일정 MQ 바인딩", tags = "Schedule")
     @PostMapping(path = "/mq", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createBoardMQ(@RequestParam(name = "uuid") @NotBlank String uuid) {
         scheduleFacadeService.declareBinding(uuid);

@@ -1,6 +1,7 @@
 package com.ojw.planner.core.util;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -62,6 +63,14 @@ public final class Utils {
             return true;
         } catch(NumberFormatException e) {
             return false;
+        }
+    }
+
+    public static String maskingId(String id) {
+        if(StringUtils.hasText(id) && id.length() > 3) {
+            return id.substring(0, id.length() - 3) + "***";
+        } else {
+            return "";
         }
     }
 

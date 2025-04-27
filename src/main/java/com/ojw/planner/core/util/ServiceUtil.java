@@ -15,6 +15,14 @@ public final class ServiceUtil {
         }
     }
 
+    public static void validateOwnerByUuid(String uuid) {
+        CustomUserDetails cu = CustomUserDetails.getDetails();
+        if(!checkAdmin(cu)) {
+            if(!cu.getUuid().equalsIgnoreCase(uuid))
+                throw new ResponseException("not the current user's request", HttpStatus.FORBIDDEN);
+        }
+    }
+
     private static boolean checkAdmin(CustomUserDetails cu) {
         return cu.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equalsIgnoreCase(Authority.ADMIN.getDescription()));

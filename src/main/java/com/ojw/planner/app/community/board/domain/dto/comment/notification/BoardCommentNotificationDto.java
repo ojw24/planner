@@ -3,6 +3,7 @@ package com.ojw.planner.app.community.board.domain.dto.comment.notification;
 import com.ojw.planner.app.community.board.domain.comment.notification.BoardCommentNotification;
 import com.ojw.planner.core.domain.Notification;
 import com.ojw.planner.core.enumeration.common.NotificationDiv;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,7 +51,7 @@ public class BoardCommentNotificationDto implements Notification {
                 .boardMemoId(notification.getComment().getBoardMemo().getBoardMemoId())
                 .boardCommentId(notification.getComment().getBoardCommentId())
                 .content(notification.getComment().getContent())
-                .writerId(notification.getComment().getUser().getUserId())
+                .writerId(Utils.maskingId(notification.getComment().getUser().getUserId()))
                 .writerName(notification.getComment().getUser().getName())
                 .isChecked(notification.getIsChecked() != null ? notification.getIsChecked() : false)
                 .regDtm(notification.getRegDtm())

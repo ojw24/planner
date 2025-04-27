@@ -4,6 +4,7 @@ import com.ojw.planner.app.system.friend.domain.request.notification.FriendReque
 import com.ojw.planner.core.domain.Notification;
 import com.ojw.planner.core.enumeration.common.NotificationDiv;
 import com.ojw.planner.core.enumeration.mapper.EnumValue;
+import com.ojw.planner.core.util.Utils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,9 +53,9 @@ public class FriendRequestNotificationDto implements Notification {
         return FriendRequestNotificationDto.builder()
                 .notiId(notification.getNotiId())
                 .friendReqId(notification.getRequest().getFriendReqId())
-                .requesterId(notification.getRequest().getRequester().getUserId())
+                .requesterId(Utils.maskingId(notification.getRequest().getRequester().getUserId()))
                 .requesterName(notification.getRequest().getRequester().getName())
-                .targetId(notification.getRequest().getTarget().getUserId())
+                .targetId(Utils.maskingId(notification.getRequest().getTarget().getUserId()))
                 .targetName(notification.getRequest().getTarget().getName())
                 .notiType(
                         EnumValue.toEnumValue(
