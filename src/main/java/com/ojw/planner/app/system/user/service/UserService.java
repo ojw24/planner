@@ -280,12 +280,16 @@ public class UserService {
         User user = getUserByUuid(uuid);
         user.ban();
 
-        bannedUserService.saveUser(
-                BannedUser.builder()
-                        .userId(user.getUserId())
-                        .expire(JwtType.ACCESS.getExpire())
-                        .build()
-        );
+        BannedUser bannedUser = BannedUser.builder()
+                .userId(user.getUserId())
+                .expire(JwtType.ACCESS.getExpire())
+                .build();
+
+        if(user.getIsBanned()) {
+            bannedUserService.saveUser(bannedUser);
+        } else {
+            bannedUserService.deleteUser(bannedUser);
+        }
 
     }
 

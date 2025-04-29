@@ -52,7 +52,7 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             throw new ResponseException("아이디 혹은 비밀번호가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED);
 
-        if(user.getIsBanned()) throw new ResponseException("정지된 유저 : " + request.getUserId(), HttpStatus.FORBIDDEN);
+        if(user.getIsBanned()) throw new ResponseException("정지된 계정입니다.", HttpStatus.FORBIDDEN);
 
         String accessToken = jwtUtil.createToken(user, JwtType.ACCESS);
         String refreshToken = jwtUtil.createToken(user, JwtType.REFRESH);
