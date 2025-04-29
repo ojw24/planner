@@ -20,4 +20,8 @@ public class BannedUserService {
         return !ObjectUtils.isEmpty(bannedUserRepository.findById(userId).orElse(null));
     }
 
+    public void deleteUser(BannedUser user) {
+        bannedUserRepository.delete(user);
+    }
+
 }
