@@ -92,7 +92,7 @@ public class User extends BaseEntity {
     }
 
     public void ban() {
-        this.isBanned = true;
+        this.isBanned = !this.isBanned;
     }
 
     public boolean isAdmin() {
