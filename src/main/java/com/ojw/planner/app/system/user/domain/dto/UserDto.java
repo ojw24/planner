@@ -53,12 +53,16 @@ public class UserDto {
     private AttachedFileDto file;
 
     public static UserDto of(User user) {
-        return of(user, false);
+        return of(user, false, false);
     }
 
     public static UserDto of(User user, boolean detail) {
+        return of(user, detail, false);
+    }
+
+    public static UserDto of(User user, boolean detail, boolean me) {
         return UserDto.builder()
-                .userId(Utils.maskingId(user.getUserId()))
+                .userId(me ? user.getUserId() : Utils.maskingId(user.getUserId()))
                 .uuid(user.getUuid())
                 .name(user.getName())
                 .email(user.getEmail())

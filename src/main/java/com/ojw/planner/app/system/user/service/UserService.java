@@ -169,12 +169,12 @@ public class UserService {
     }
 
     /**
-     * 사용자 상세 조회
+     * 사용자 프로필 조회
      *
-     * @return 사용자 상세 정보
+     * @return 사용자 프로필 정보
      */
-    public UserDto findUser(){
-        return UserDto.of(getUser(CustomUserDetails.getDetails().getUserId()), true);
+    public UserDto findMe(){
+        return UserDto.of(getUser(CustomUserDetails.getDetails().getUserId()), true, true);
     }
 
     public User getUser(String userId) {

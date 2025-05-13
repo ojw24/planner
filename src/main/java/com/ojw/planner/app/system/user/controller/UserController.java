@@ -68,10 +68,10 @@ public class UserController {
         return new ResponseEntity<>(new ApiResponse<>(userService.findUser(uuid)), HttpStatus.OK);
     }
 
-    @Operation(summary = "사용자 상세 조회", description = "사용자 직접 조회", tags = "User")
+    @Operation(summary = "사용자 프로필 조회", description = "사용자 직접 조회", tags = "User")
     @GetMapping(path = "/profile/me")
     public ResponseEntity<?> findMe() {
-        return new ResponseEntity<>(new ApiResponse<>(userService.findUser()), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(userService.findMe()), HttpStatus.OK);
     }
 
     @Operation(summary = "아이디 중복 확인", tags = "User")
