@@ -5,7 +5,7 @@
        style="vertical-align: middle; margin-right: 8px;" />
   Planner
 </h1>
-일정 및 목표 관리 서비스 <a href="https://web-planner.store">Planner</a>의 API입니다.
+일정 및 목표 관리 서비스 <a href="https://web-planner.uk">Planner</a>의 API입니다.
 <br /><br />
 
 <h2 align="left">
@@ -38,7 +38,7 @@
   ✏
   <strong>API 정의서</strong>
 </h2>
-<a href="https://web-planner.store/planner/api/swagger-ui/index.html">SWAGGER</a>
+<a href="https://web-planner.uk/planner/api/swagger-ui/index.html">SWAGGER</a>
 <br /><br />
 
 <h2 align="left">
@@ -60,7 +60,7 @@
 
 <h2 align="left">
   ✈
-  <a href="https://web-planner.store">서비스 이용하기</a>
+  <a href="https://web-planner.uk">서비스 이용하기</a>
 </h2>
 <br /><br />
 
